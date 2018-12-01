@@ -39,20 +39,9 @@ private:
     /**
      * all cylinders in data
      */
-    std::vector<vtkSmartPointer<Cylinder>> cylinders;
+    std::vector<vtkSmartPointer<Tube>> tubes;
 
-    /**
-     * calculate normals of data's cells, this must be called after function setData()
-     * @param data
-     * @return three components of tuple
-     */
-    vtkSmartPointer<vtkDataArray> calculateNormals(vtkSmartPointer<vtkPolyData> data);
 
-    /**
-     * only used by OnLeftButtonDown()
-     * @param scale
-     */
-    int stretchSelectedCylinder(double point[3], double scale);
 
 public:
     static CellPickerInteractorStyle *New();

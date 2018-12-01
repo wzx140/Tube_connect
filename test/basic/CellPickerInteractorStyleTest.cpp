@@ -2,8 +2,8 @@
 // Created by wzx on 18-11-22.
 //
 #include <gtest/gtest.h>
-#include "../include/CellPickerInteractorStyle.h"
-#include "../include/STLRender.h"
+#include "../../include/CellPickerInteractorStyle.h"
+#include "../../include/STLRender.h"
 
 
 class CellPickerInteractorStyleTest : public ::testing::Test {
@@ -21,10 +21,10 @@ protected:
 };
 
 /**
- * if you can select cell in the cylinder, the test is pass
+ * if you can select cell in the tube, the test is pass
  */
 TEST_F(CellPickerInteractorStyleTest, OnLeftButtonDownTest) {
-    this->stlRender->setPath("../test/res/test2.STL");
+    this->stlRender->setPath("../../test/res/test2.stl");
     this->stlRender->load();
     this->stlRender->setInputData(this->stlRender->getData());
     this->style->setStlRender(this->stlRender);

@@ -8,7 +8,7 @@
 #include <vtkAxesActor.h>
 #include <vector>
 
-#include "../include/STLRender.h"
+#include "../../include/STLRender.h"
 
 using std::vector;
 
@@ -27,62 +27,39 @@ protected:
 };
 
 /**
- * if you see a cylinder, the test is pass
+ * if you see a tube, the test is pass
  */
 TEST_F(STLRenderTest, test1) {
-    stlRender->setPath("../test/res/test1.STL");
+    stlRender->setPath("res/test1.stl");
     stlRender->load();
     stlRender->setInputData(stlRender->getData());
     stlRender->start();
 }
 
 /**
- * if you see three cylinders, the test is pass
+ * if you see three tubes, the test is pass
  */
 TEST_F(STLRenderTest, test2) {
-    stlRender->setPath("../test/res/test2.STL");
+    stlRender->setPath("res/test2.stl");
     stlRender->load();
     stlRender->setInputData(stlRender->getData());
     stlRender->start();
 }
 
 /**
- * if you see a cylinder with axis, the test is pass
+ * if you see a tube with axis, the test is pass
  */
 TEST_F(STLRenderTest, testAxisOn) {
-    stlRender->setPath("../test/res/test1.STL");
+    stlRender->setPath("res/test1.stl");
     stlRender->load();
     stlRender->setInputData(stlRender->getData());
     stlRender->axisOn();
     stlRender->start();
 }
 
-/**
- *  if you see three cylinders and the one is very long, the test is pass
- */
-TEST_F(STLRenderTest, setInputData2Test) {
-    stlRender->setPath("../test/res/test2.STL");
-    stlRender->load();
-    auto cylinders = stlRender->getCylinders();
-
-    vector<vtkSmartPointer<vtkPolyData>> dataList;
-    EXPECT_EQ(cylinders.size(), 3);
-
-    double i[3] = {0, 0, 1};
-    cylinders.at(0)->stretch(2, i, basePoint);
-    cylinders.at(0)->stretch(2, i, basePoint);
-
-
-    dataList.push_back(cylinders.at(0)->getData());
-    dataList.push_back(cylinders.at(1)->getData());
-    dataList.push_back(cylinders.at(2)->getData());
-
-    stlRender->setInputData(dataList);
-    stlRender->start();
-}
 
 /**
- * if you see four renderers in a render window with three, one, one, one cylinders in turn, the test is pass
+ * if you see four renderers in a render window with three, one, one, one tube in turn, the test is pass
  */
 TEST_F(STLRenderTest, getCylinderstest) {
 
@@ -92,11 +69,11 @@ TEST_F(STLRenderTest, getCylinderstest) {
     double viewport3[4] = {0.5, 0.0, 0.75, 1.0};
     double viewport4[4] = {0.75, 0.0, 1.0, 1.0};
 
-    stlRender->setPath("../test/res/test2.STL");
+    stlRender->setPath("res/test2.stl");
     stlRender->load();
-    auto cylinders = stlRender->getCylinders();
+    auto tubes = stlRender->getTubes();
 
-    EXPECT_EQ(cylinders.size(), 3);
+    EXPECT_EQ(tubes.size(), 3);
 
     auto axes = vtkSmartPointer<vtkAxesActor>::New();
     axes->SetShaftType(0);
@@ -114,11 +91,8 @@ TEST_F(STLRenderTest, getCylinderstest) {
     renderer1->SetViewport(viewport1);
     renderer1->AddActor(axes);
 
-    double i[3] = {0, 1, 0};
-    cylinders.at(0)->stretch(2, i, basePoint);
-
     auto mapper2 = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper2->SetInputData(cylinders.at(0)->getData());
+    mapper2->SetInputData(tubes.at(0)->getData());
     mapper2->Update();
     auto actor2 = vtkSmartPointer<vtkActor>::New();
     actor2->SetMapper(mapper2);
@@ -128,7 +102,7 @@ TEST_F(STLRenderTest, getCylinderstest) {
     renderer2->AddActor(axes);
 
     auto mapper3 = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper3->SetInputData(cylinders.at(1)->getData());
+    mapper3->SetInputData(tubes.at(1)->getData());
     mapper3->Update();
     auto actor3 = vtkSmartPointer<vtkActor>::New();
     actor3->SetMapper(mapper3);
@@ -138,7 +112,7 @@ TEST_F(STLRenderTest, getCylinderstest) {
     renderer3->AddActor(axes);
 
     auto mapper4 = vtkSmartPointer<vtkPolyDataMapper>::New();
-    mapper4->SetInputData(cylinders.at(2)->getData());
+    mapper4->SetInputData(tubes.at(2)->getData());
     mapper4->Update();
     auto actor4 = vtkSmartPointer<vtkActor>::New();
     actor4->SetMapper(mapper4);

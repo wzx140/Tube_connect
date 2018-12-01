@@ -13,7 +13,7 @@
 #include <vtkAlgorithmOutput.h>
 #include <vector>
 
-#include "../include/Cylinder.h"
+#include "Tube.h"
 
 /**
  * used to render the stl file
@@ -72,12 +72,12 @@ public:
     void setStyle(vtkSmartPointer<vtkInteractorStyleTrackballCamera> style);
 
     /**
-     * split the cylinders in the data.
-     * the data must have and only have cylinders.
+     * split the tubes in the data.
+     * the data must have and only have tubes.
      * this function must be called after load()
      * @return
      */
-    std::vector<vtkSmartPointer<Cylinder>> getCylinders();
+    std::vector<vtkSmartPointer<Tube>> getTubes();
 
     vtkSmartPointer<vtkRenderer> getRenderer();
 

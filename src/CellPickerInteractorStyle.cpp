@@ -47,10 +47,10 @@ void CellPickerInteractorStyle::OnLeftButtonDown() {
             ids->SetNumberOfComponents(1);
             ids->InsertNextValue(this->cellID);
 
-            vtkIdType pointID;
-            pointID = this->stlRender->getData()->GetCell(this->cellID)->GetPointId(1);
-            double point[3];
-            this->stlRender->getData()->GetPoint(pointID, point);
+//            vtkIdType pointID;
+//            pointID = this->stlRender->getData()->GetCell(this->cellID)->GetPointId(1);
+//            double point[3];
+//            this->stlRender->getData()->GetPoint(pointID, point);
 //            for (int i = 0; i < 3; i++) {
 //                cout.precision(5);
 //                cout << point[i] << '\t';
@@ -78,26 +78,10 @@ void CellPickerInteractorStyle::OnLeftButtonDown() {
 
             this->stlRender->getRenderer()->AddActor(selectedActor);
 
-            this->stretchSelectedCylinder(point, 2);
-            vector<vtkSmartPointer<vtkPolyData>> dataList;
-
-            for (auto &cylinder : cylinders) {
-                dataList.push_back(cylinder->getData());
-            }
-            this->stlRender->setInputData(dataList);
-
         }
     }
 
     vtkInteractorStyleTrackballCamera::OnLeftButtonDown();
-}
-
-vtkSmartPointer<vtkDataArray> CellPickerInteractorStyle::calculateNormals(vtkSmartPointer<vtkPolyData> data) {
-    auto normalFilter = vtkSmartPointer<vtkPolyDataNormals>::New();
-    normalFilter->SetInputData(data);
-    normalFilter->SetComputeCellNormals(1);
-    normalFilter->Update();
-    return normalFilter->GetOutput()->GetCellData()->GetNormals();
 }
 
 void CellPickerInteractorStyle::setSelectMode(bool selectMode) {
@@ -106,19 +90,6 @@ void CellPickerInteractorStyle::setSelectMode(bool selectMode) {
 
 void CellPickerInteractorStyle::setStlRender(vtkSmartPointer<STLRender> stlRender) {
     CellPickerInteractorStyle::stlRender = stlRender;
-    this->cylinders = stlRender->getCylinders();
+    this->tubes = stlRender->getTubes();
 }
 
-int CellPickerInteractorStyle::stretchSelectedCylinder(double point[3], double scale) {
-
-    int flag = 0;
-    auto normals = calculateNormals(this->stlRender->getData());
-    double *normal = normals->GetTuple3(this->cellID);
-    for (auto &cylinder : cylinders) {
-        if (cylinder->hasPoint(point)) {
-            flag++;
-            cylinder->stretch(scale, normal, point);
-        }
-    }
-    return flag;
-}

@@ -68,9 +68,9 @@ void STLRender::setStyle(vtkSmartPointer<vtkInteractorStyleTrackballCamera> styl
     this->interactor->SetInteractorStyle(style);
 }
 
-vector<vtkSmartPointer<Cylinder>> STLRender::getCylinders() {
+vector<vtkSmartPointer<Tube>> STLRender::getTubes() {
 
-    vector<vtkSmartPointer<Cylinder>> cylinders;
+    vector<vtkSmartPointer<Tube>> cylinders;
 
     auto filter = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
     filter->SetInputData(this->data);
@@ -80,7 +80,7 @@ vector<vtkSmartPointer<Cylinder>> STLRender::getCylinders() {
     int num = filter->GetNumberOfExtractedRegions();
 
     for (int i = 0; i < num; i++) {
-        auto cylinder = vtkSmartPointer<Cylinder>::New();
+        auto cylinder = vtkSmartPointer<Tube>::New();
 
         auto filter2 = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
         filter2->SetInputData(this->data);
@@ -108,10 +108,11 @@ void STLRender::setInputData(vtkSmartPointer<vtkPolyData> data) {
 
     auto actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
-//    actor->GetProperty()->SetOpacity(0.5);
+    actor->GetProperty()->SetOpacity(0.5);
 
     this->renderer->RemoveActor(this->actor);
     this->actor = actor;
+
     this->renderer->AddActor(actor);
 }
 
@@ -129,7 +130,7 @@ void STLRender::setInputData(vector<vtkSmartPointer<vtkPolyData>> dataList) {
 
     auto actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
-//    actor->GetProperty()->SetOpacity(0.5);
+    actor->GetProperty()->SetOpacity(0.5);
 
     this->renderer->RemoveActor(this->actor);
     this->actor = actor;
