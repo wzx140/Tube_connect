@@ -14,6 +14,8 @@
 #include <vtkPointData.h>
 #include <vtkDoubleArray.h>
 #include <array>
+#include <vtkLine.h>
+#include <vtkArcSource.h>
 
 #include "VectorUtil.h"
 
@@ -21,6 +23,8 @@ using std::array;
 
 namespace LineUtil {
     const double zAxis[3] = {0, 0, 1};
+    const double xAxis[3] = {1, 0, 0};
+    const double yAxis[3] = {0, 1, 0};
 
     /**
      * generate a curved line to blend two lines
@@ -29,56 +33,124 @@ namespace LineUtil {
      * @param endPoint: the end point
      * @param endVector: the vector of the end point in the end line
      * @param resolution: the num of the points in generated line
+     ** @warning if two lines is parallel, it may cause error
      * @return
      */
-    vtkSmartPointer<vtkPoints>
-    lineBlend(double stPoint[], double stVector[], double endPoint[], double endVector[], int resolution);
+    inline vtkSmartPointer<vtkPolyData>
+    lineBlend(array<double, 3> &stPoint, array<double, 3> &stVector, array<double, 3> &endPoint,
+              array<double, 3> &endVector, int resolution);
 
-    array<array<double, 3>, 2> getLine(double st)
+    /**
+     * get intersection of two lines in xy plane, the z-axis is 0
+     * @param point1
+     * @param vector1
+     * @param point2
+     * @param vector2
+     * @warning if two lines is parallel, it may cause error
+     * @return
+     */
+    inline array<double, 3> intersection(array<double, 3> &point1, array<double, 3> &vector1, array<double, 3> &point2,
+                                         array<double, 3> &vector2);
 
 
 }
 
 namespace LineUtil {
 
-    vtkSmartPointer<vtkPoints>
-    lineBlend(double *stPoint, double *stVector, double *endPoint, double *endVector, int resolution) {
+    vtkSmartPointer<vtkPolyData>
+    lineBlend(array<double, 3> &stPoint, array<double, 3> &stVector, array<double, 3> &endPoint,
+              array<double, 3> &endVector, int resolution) {
         auto points = vtkSmartPointer<vtkPoints>::New();
         auto vectors = vtkSmartPointer<vtkDoubleArray>::New();
         auto data = vtkSmartPointer<vtkPolyData>::New();
         auto transform = vtkSmartPointer<vtkTransform>::New();
         auto filter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
-        double stPointZ[3];
-        double endPointZ[3];
+        array<double, 3> stPointZ{};
+        array<double, 3> stVectorZ{};
+        array<double, 3> endPointZ{};
+        array<double, 3> endVectorZ{};
 
-        points->InsertNextPoint(stPoint);
-        points->InsertNextPoint(endPoint);
+        points->InsertNextPoint(stPoint.data());
+        points->InsertNextPoint(endPoint.data());
         data->SetPoints(points);
         vectors->SetNumberOfComponents(3);
-        vectors->InsertNextTuple(stVector);
-        vectors->InsertNextTuple(endVector);
+        vectors->InsertNextTuple(stVector.data());
+        vectors->InsertNextTuple(endVector.data());
         data->GetPointData()->SetVectors(vectors);
 
-//      rotate to xy-z
-        double nAxis[3];
-        vtkMath::Cross(stVector, endVector, nAxis);
-        VectorUtil::regularize(nAxis);
-        auto theta = vtkMath::DegreesFromRadians(acos(vtkMath::Dot(nAxis, zAxis)));
-        double axis[3];
-        vtkMath::Cross(nAxis, zAxis, axis);
-        transform->RotateWXYZ(theta, axis);
-        filter->SetTransform(transform);
-        filter->Update();
-        filter->GetOutput()->GetPoint(0, stPointZ);
-        filter->GetOutput()->GetPoint(1, endPointZ);
 
-        if (stPointZ[2] != endPointZ[2]) {
-            cout << "error" << endl;
+//      rotate to xy-z
+        array<double, 3> nAxis = {0};
+        vtkMath::Cross(stVector.data(), endVector.data(), nAxis.data());
+        VectorUtil::regularize(nAxis);
+        double theta = vtkMath::DegreesFromRadians(acos(vtkMath::Dot(nAxis.data(), zAxis)));
+        array<double, 3> axis = {0};
+        vtkMath::Cross(nAxis.data(), zAxis, axis.data());
+        transform->RotateWXYZ(theta, axis.data());
+        filter->SetTransform(transform);
+        filter->SetInputData(data);
+        filter->Update();
+        filter->GetOutput()->GetPoint(0, stPointZ.data());
+        filter->GetOutput()->GetPoint(1, endPointZ.data());
+        filter->GetOutput()->GetPointData()->GetVectors()->GetTuple(0, stVectorZ.data());
+        filter->GetOutput()->GetPointData()->GetVectors()->GetTuple(1, endVectorZ.data());
+
+//        if (stPointZ[2] != endPointZ[2]) {
+//            cout << "error" << endl;
+//        }
+        double pointZ = stPointZ[2];
+
+
+//      get circle center
+        array<double, 3> verStVector{};
+        array<double, 3> verEndVector{};
+        auto verStVectors = VectorUtil::getVerVector(stVectorZ);
+        auto comVector = VectorUtil::getVector(stPointZ, endPointZ);
+        if (VectorUtil::getAngle(comVector, verStVectors[0]) < 90) {
+            verStVector = verStVectors[0];
+        } else {
+            verStVector = verStVectors[1];
         }
 
+        auto verEndVectors = VectorUtil::getVerVector(endVectorZ);
+        VectorUtil::reverseVector(comVector);
+        if (VectorUtil::getAngle(comVector, verStVectors[0]) < 90) {
+            verEndVector = verEndVectors[0];
+        } else {
+            verEndVector = verEndVectors[1];
+        }
+        auto center = LineUtil::intersection(stPointZ, verStVector, endPointZ, verEndVector);
+        center[2] = pointZ;
 
-        return NULL;
+        auto arc = vtkSmartPointer<vtkArcSource>::New();
+        arc->SetCenter(center.data());
+        arc->SetPoint1(stPointZ.data());
+        arc->SetPoint2(endPointZ.data());
+        arc->SetResolution(resolution);
+        arc->Update();
+
+//      rotate back
+        filter->SetTransform(transform->GetInverse());
+        filter->SetInputData(arc->GetOutput());
+        filter->Update();
+
+        return filter->GetOutput();
     }
+
+    array<double, 3> intersection(array<double, 3> &point1, array<double, 3> &vector1, array<double, 3> &point2,
+                                  array<double, 3> &vector2) {
+        array<double, 3> Secpoint = {0};
+        double k1 = vector1[1] / vector1[0];
+        double k2 = vector2[1] / vector2[0];
+
+        Secpoint[0] = (point2[1] - point1[1] + k1 * point1[0] - k2 * point2[0]) / (k1 - k2);
+        Secpoint[1] = k1 * (Secpoint[0] - point1[0]) + point1[1];
+
+        return Secpoint;
+
+    }
+
+
 }
 
 

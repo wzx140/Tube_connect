@@ -61,9 +61,9 @@ public:
      */
     void axisOn();
 
-    void setInputData(vtkSmartPointer<vtkPolyData> data);
+    void setInputData(vtkSmartPointer<vtkPolyData> data, double opacity);
 
-    void setInputData(std::vector<vtkSmartPointer<vtkPolyData>> dataList);
+    void setInputData(std::vector<vtkSmartPointer<vtkPolyData>> dataList, double opacity);
 
     /**
      * this function must be called before function load
@@ -78,6 +78,12 @@ public:
      * @return
      */
     std::vector<vtkSmartPointer<Tube>> getTubes();
+
+    /**
+     * set actor transparent, default is true if you do not call this function
+     * @param isTrue
+     */
+    void setTransparent(bool isTrue);
 
     vtkSmartPointer<vtkRenderer> getRenderer();
 

@@ -28,7 +28,7 @@ protected:
 TEST_F(STLRenderTest, test1) {
     stlRender->setPath("res/test1.stl");
     stlRender->load();
-    stlRender->setInputData(stlRender->getData());
+    stlRender->setInputData(stlRender->getData(), 0.5);
     stlRender->start();
 }
 
@@ -38,7 +38,7 @@ TEST_F(STLRenderTest, test1) {
 TEST_F(STLRenderTest, test2) {
     stlRender->setPath("res/test2.stl");
     stlRender->load();
-    stlRender->setInputData(stlRender->getData());
+    stlRender->setInputData(stlRender->getData(), 0.5);
     stlRender->start();
 }
 
@@ -48,7 +48,7 @@ TEST_F(STLRenderTest, test2) {
 TEST_F(STLRenderTest, testAxisOn) {
     stlRender->setPath("res/test1.stl");
     stlRender->load();
-    stlRender->setInputData(stlRender->getData());
+    stlRender->setInputData(stlRender->getData(), 0.5);
     stlRender->axisOn();
     stlRender->start();
 }

@@ -57,9 +57,9 @@ void STLRender::start() {
 void STLRender::axisOn() {
     auto axes = vtkSmartPointer<vtkAxesActor>::New();
     axes->SetShaftType(0);
-//    the length of the three axes todo: change it
+//    the length of the three axes
     axes->SetTotalLength(2, 2, 2);
-    axes->SetAxisLabels(0);
+    axes->SetAxisLabels(1);
 
     this->renderer->AddActor(axes);
 }
@@ -80,7 +80,7 @@ vector<vtkSmartPointer<Tube>> STLRender::getTubes() {
     int num = filter->GetNumberOfExtractedRegions();
 
     for (int i = 0; i < num; i++) {
-        auto cylinder = vtkSmartPointer<Tube>::New();
+        auto tube = vtkSmartPointer<Tube>::New();
 
         auto filter2 = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
         filter2->SetInputData(this->data);
@@ -89,8 +89,8 @@ vector<vtkSmartPointer<Tube>> STLRender::getTubes() {
         filter2->AddSpecifiedRegion(i);
         filter2->Update();
 
-        cylinder->setData(filter2->GetOutput());
-        cylinders.push_back(cylinder);
+        tube->setData(filter2->GetOutput());
+        cylinders.emplace_back(tube);
     }
     return cylinders;
 }
@@ -99,7 +99,7 @@ vtkSmartPointer<vtkPolyData> STLRender::getData() {
     return data;
 }
 
-void STLRender::setInputData(vtkSmartPointer<vtkPolyData> data) {
+void STLRender::setInputData(vtkSmartPointer<vtkPolyData> data, double opacity) {
 
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     this->data = data;
@@ -108,7 +108,7 @@ void STLRender::setInputData(vtkSmartPointer<vtkPolyData> data) {
 
     auto actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
-    actor->GetProperty()->SetOpacity(0.5);
+    actor->GetProperty()->SetOpacity(opacity);
 
     this->renderer->RemoveActor(this->actor);
     this->actor = actor;
@@ -116,7 +116,7 @@ void STLRender::setInputData(vtkSmartPointer<vtkPolyData> data) {
     this->renderer->AddActor(actor);
 }
 
-void STLRender::setInputData(vector<vtkSmartPointer<vtkPolyData>> dataList) {
+void STLRender::setInputData(vector<vtkSmartPointer<vtkPolyData>> dataList, double opacity) {
 
     auto append = vtkSmartPointer<vtkAppendPolyData>::New();
     for (auto &data : dataList) {
@@ -130,7 +130,7 @@ void STLRender::setInputData(vector<vtkSmartPointer<vtkPolyData>> dataList) {
 
     auto actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
-    actor->GetProperty()->SetOpacity(0.5);
+    actor->GetProperty()->SetOpacity(opacity);
 
     this->renderer->RemoveActor(this->actor);
     this->actor = actor;

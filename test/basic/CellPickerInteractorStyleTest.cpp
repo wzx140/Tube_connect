@@ -26,7 +26,7 @@ protected:
 TEST_F(CellPickerInteractorStyleTest, OnLeftButtonDownTest) {
     this->stlRender->setPath("res/test2.stl");
     this->stlRender->load();
-    this->stlRender->setInputData(this->stlRender->getData());
+    this->stlRender->setInputData(this->stlRender->getData(), 0.5);
     this->style->setStlRender(this->stlRender);
     this->style->setSelectMode(true);
     this->stlRender->start();

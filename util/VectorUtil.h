@@ -67,6 +67,13 @@ namespace VectorUtil {
      */
     inline vtkSmartPointer<vtkDataArray> calculateNormals(vtkSmartPointer<vtkPolyData> data);
 
+    /**
+     * get two vertical vectors in xy plane
+     * @param vector
+     * @return two vertical vectors
+     */
+    inline array<array<double, 3>, 2> getVerVector(array<double, 3> &vector);
+
 }
 
 namespace VectorUtil {
@@ -116,12 +123,12 @@ namespace VectorUtil {
     bool isEqual(const array<double, 3> &vector1, const array<double, 3> &vector2) {
         double epsilon = 0.001;
 
-        if (abs(vector1[0] - vector2[0]) < epsilon &&
-            abs(vector1[1] - vector2[1]) < epsilon &&
-            abs(vector1[2] - vector2[2]) < epsilon) {
+        double deltaX = abs(vector1[0] - vector2[0]);
+        double deltaY = abs(vector1[1] - vector2[1]);
+        double deltaZ = abs(vector1[2] - vector2[2]);
+        if (deltaX < epsilon && deltaY < epsilon && deltaZ < epsilon) {
             return true;
         } else {
-
             return false;
         }
     }
@@ -133,6 +140,23 @@ namespace VectorUtil {
         normalFilter->Update();
         return normalFilter->GetOutput()->GetCellData()->GetNormals();
 
+    }
+
+    array<array<double, 3>, 2> getVerVector(array<double, 3> &vector) {
+        array<array<double, 3>, 2> verVectors = {0};
+        array<double, 3> verVector1 = vector;
+        array<double, 3> verVector2 = vector;
+
+        verVector1[0] = vector[1] / sqrt(pow(vector[0], 2) + pow(vector[1], 2));
+        verVector1[1] = -vector[0] / sqrt(pow(vector[0], 2) + pow(vector[1], 2));
+
+        verVector2[0] = -vector[1] / sqrt(pow(vector[0], 2) + pow(vector[1], 2));
+        verVector2[1] = vector[0] / sqrt(pow(vector[0], 2) + pow(vector[1], 2));
+
+        verVectors[0] = verVector1;
+        verVectors[1] = verVector2;
+
+        return verVectors;
     }
 }
 
