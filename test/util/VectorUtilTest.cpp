@@ -9,10 +9,10 @@
 using namespace VectorUtil;
 
 TEST(VectorUtilTest, getAngleTest) {
-    double vector1[3] = {0, 0, 1};
-    double vector2[3] = {0, 1, 0};
-    double vector3[3] = {0, 0, -1};
-    double vector4[3] = {0, 1, 1};
+    array<double, 3> vector1 = {0, 0, 1};
+    array<double, 3> vector2 = {0, 1, 0};
+    array<double, 3> vector3 = {0, 0, -1};
+    array<double, 3> vector4 = {0, 1, 1};
 
     EXPECT_EQ(getAngle(vector1, vector2), 90);
     EXPECT_EQ(getAngle(vector1, vector3), 180);

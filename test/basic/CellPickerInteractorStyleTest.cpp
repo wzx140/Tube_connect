@@ -24,7 +24,7 @@ protected:
  * if you can select cell in the tube, the test is pass
  */
 TEST_F(CellPickerInteractorStyleTest, OnLeftButtonDownTest) {
-    this->stlRender->setPath("../../test/res/test2.stl");
+    this->stlRender->setPath("res/test2.stl");
     this->stlRender->load();
     this->stlRender->setInputData(this->stlRender->getData());
     this->style->setStlRender(this->stlRender);

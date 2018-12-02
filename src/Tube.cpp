@@ -7,7 +7,6 @@
 #include <vtkMath.h>
 #include <vtkPoints.h>
 
-#include "../util/CellUtil.h"
 #include "../util/VectorUtil.h"
 
 using std::cout;
@@ -20,7 +19,7 @@ Tube::Tube() {
     this->data = vtkSmartPointer<vtkPolyData>::New();
     this->edgePoints = vtkSmartPointer<vtkDoubleArray>::New();
     this->edgePoints->SetNumberOfComponents(3);
-    this->normal = new double[3];
+    this->normal = {0};
 }
 
 
@@ -32,25 +31,24 @@ vtkSmartPointer<vtkPolyData> Tube::getData() {
     return data;
 }
 
-bool Tube::hasPoint(double point[]) {
-    int num = this->data->GetNumberOfCells();
-    for (int i = 0; i < num; i++) {
+bool Tube::hasPoint(array<double, 3> point) {
+    for (int i = 0; i < this->data->GetNumberOfCells(); i++) {
 
         for (int j = 0; j < this->data->GetCell(i)->GetNumberOfPoints(); j++) {
 
-            double point_[3];
-            this->data->GetPoint(this->data->GetCell(i)->GetPointId(j), point_);
+            array<double, 3> pointIn = {0};
+            this->data->GetPoint(this->data->GetCell(i)->GetPointId(j), pointIn.data());
 
 //            for (int k = 0; k < 3; k++) {
-//                cout<<point_[i]<<'\t';
+//                cout<<pointIn[i]<<'\t';
 //            }
 //            cout << '\n';
 
             double epsilon = 0.001;
 
-            if (abs(point_[0] - point[0]) < epsilon &&
-                abs(point_[1] - point[1]) < epsilon &&
-                abs(point_[2] - point[2]) < epsilon) {
+            if (abs(pointIn[0] - point[0]) < epsilon &&
+                abs(pointIn[1] - point[1]) < epsilon &&
+                abs(pointIn[2] - point[2]) < epsilon) {
                 return true;
             }
         }
@@ -58,86 +56,76 @@ bool Tube::hasPoint(double point[]) {
     return false;
 }
 
-void Tube::update(double point[]) {
+void Tube::update(array<double, 3> &point) {
 //    calculate tubeNormal
-    auto normals = CellUtil::calculateNormals(this->data);
-    double normal1[3];
-    normals->GetTuple(0, normal1);
-    double *normal2 = VectorUtil::getDifferentVector(normals, normal1);
+    auto normals = VectorUtil::calculateNormals(this->data);
+    array<double, 3> normal1 = {0};
+    normals->GetTuple(0, normal1.data());
+    auto normal2 = VectorUtil::getDifferentVector(normals, normal1);
 
-    double tubeNormal[3];
-    vtkMath::Cross(normal1, normal2, tubeNormal);
+    array<double, 3> tubeNormal = {0};
+    vtkMath::Cross(normal1.data(), normal2.data(), tubeNormal.data());
 
-    double pointIn[3];
-    this->data->GetPoint(0, pointIn);
-    double normalCompare[3];
-    VectorUtil::getVector(pointIn, point, normalCompare);
+    array<double, 3> pointIn = {0};
+    this->data->GetPoint(0, pointIn.data());
+    auto normalCompare = VectorUtil::getVector(pointIn, point);
     double degree = VectorUtil::getAngle(tubeNormal, normalCompare);
     if (degree > 90) {
         VectorUtil::reverseVector(tubeNormal);
     }
     VectorUtil::regularize(tubeNormal);
 
-    for (int i = 0; i < 3; i++) {
-        this->normal[i] = tubeNormal[i];
-    }
+    this->normal = tubeNormal;
 
 
 //    extract edge of the tube
 
     auto points = this->data->GetPoints();
     int pointID = 0;
-    {
-        double point[3];
-        double vector[3];
-        for (int i = 0; i < points->GetNumberOfPoints(); i++) {
+    array<double, 3> edgePoint = {0};
+    array<double, 3> pointTemp = {0};
+    for (int i = 0; i < points->GetNumberOfPoints(); i++) {
 
-            int flag = 0;
-            points->GetPoint(i, point);
+        int flag = 0;
+        points->GetPoint(i, edgePoint.data());
 
-            for (int j = 0; j < points->GetNumberOfPoints(); j++) {
-                if (i != j) {
-                    double point2[3];
-                    points->GetPoint(j, point2);
-                    VectorUtil::getVector(point2, point, vector);
-                    if (VectorUtil::getAngle(vector, this->normal) > 90) {
-                        break;
-                    } else {
-                        flag++;
-                    }
+        for (int j = 0; j < points->GetNumberOfPoints(); j++) {
+            if (i != j) {
+                points->GetPoint(j, pointTemp.data());
+                auto vector = VectorUtil::getVector(edgePoint, pointTemp);
+                if (VectorUtil::getAngle(vector, this->normal) < 90) {
+                    break;
+                } else {
+                    flag++;
                 }
             }
+        }
 
-            if (flag == points->GetNumberOfPoints() - 1) {
-                this->edgePoints->InsertNextTuple3(point[0], point[1], point[2]);
-                pointID = i;
-                break;
-            }
+        if (flag == points->GetNumberOfPoints() - 1) {
+            this->edgePoints->InsertNextTuple(edgePoint.data());
+            pointID = i;
+            break;
         }
     }
 
-    double vector[3];
     for (int i = 0; i < points->GetNumberOfPoints(); i++) {
         if (i != pointID) {
-            auto point = points->GetPoint(i);
-            VectorUtil::getVector(point, this->edgePoints->GetTuple3(0), vector);
+            points->GetPoint(i, pointTemp.data());
+            auto vector = VectorUtil::getVector(pointTemp, edgePoint);
             if (abs(VectorUtil::getAngle(vector, this->normal) - 90) < 0.001) {
-                this->edgePoints->InsertNextTuple3(point[0], point[1], point[2]);
+                this->edgePoints->InsertNextTuple(pointTemp.data());
             }
         }
     }
 
 }
 
-double *Tube::getNormal() {
-    return normal;
-}
 
 vtkSmartPointer<vtkDoubleArray> Tube::getEdgePoints() {
     return edgePoints;
 }
 
-Tube::~Tube() {
-    delete this->normal;
+const array<double, 3> &Tube::getNormal() const {
+    return normal;
 }
 

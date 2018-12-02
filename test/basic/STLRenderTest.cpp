@@ -15,14 +15,10 @@ using std::vector;
 class STLRenderTest : public ::testing::Test {
 
 protected:
-    double basePoint[3];
     vtkSmartPointer<STLRender> stlRender;
 
     virtual void SetUp() {
         stlRender = vtkSmartPointer<STLRender>::New();
-        this->basePoint[0] = 0;
-        this->basePoint[1] = 0;
-        this->basePoint[2] = 0;
     }
 };
 
