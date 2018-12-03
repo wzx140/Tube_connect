@@ -30,7 +30,7 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
     include_directories("${gtest_SOURCE_DIR}/include")
 endif ()
 
-set(TEST_FILES basic/CellPickerInteractorStyleTest.cpp basic/STLRenderTest.cpp basic/TubeTest.cpp main.cpp util/VectorUtilTest.cpp util/LineUtilTest.cpp)
+set(TEST_FILES basic/CellPickerInteractorStyleTest.cpp basic/STLRenderTest.cpp basic/TubeTest.cpp main.cpp util/VectorUtilTest.cpp util/LineUtilTest.cpp util/TubeUtilTest.cpp)
 set(SRC_FILES ../src/CellPickerInteractorStyle.cpp ../src/STLRender.cpp ../src/Tube.cpp ../include/CellPickerInteractorStyle.h ../include/STLRender.h ../include/Tube.h ../util/VectorUtil.h)
 set(RESOURCE_FILES res/test1.stl res/test2.stl)
 

@@ -47,15 +47,15 @@ void CellPickerInteractorStyle::OnLeftButtonDown() {
             ids->SetNumberOfComponents(1);
             ids->InsertNextValue(this->cellID);
 
-//            vtkIdType pointID;
-//            pointID = this->stlRender->getData()->GetCell(this->cellID)->GetPointId(1);
-//            double point[3];
-//            this->stlRender->getData()->GetPoint(pointID, point);
-//            for (int i = 0; i < 3; i++) {
-//                cout.precision(5);
-//                cout << point[i] << '\t';
-//            }
-//            cout << endl;
+            vtkIdType pointID;
+            pointID = this->stlRender->getData()->GetCell(this->cellID)->GetPointId(1);
+            double point[3];
+            this->stlRender->getData()->GetPoint(pointID, point);
+            for (int i = 0; i < 3; i++) {
+                cout.precision(5);
+                cout << point[i] << '\t';
+            }
+            cout << endl;
 
             auto selectionNode = vtkSmartPointer<vtkSelectionNode>::New();
             selectionNode->SetFieldType(vtkSelectionNode::CELL);

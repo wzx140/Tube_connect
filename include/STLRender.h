@@ -58,6 +58,7 @@ public:
 
     /**
      * display axis on the screen
+     * @warning this function must be called after function setInputData()
      */
     void axisOn();
 
@@ -78,12 +79,6 @@ public:
      * @return
      */
     std::vector<vtkSmartPointer<Tube>> getTubes();
-
-    /**
-     * set actor transparent, default is true if you do not call this function
-     * @param isTrue
-     */
-    void setTransparent(bool isTrue);
 
     vtkSmartPointer<vtkRenderer> getRenderer();
 

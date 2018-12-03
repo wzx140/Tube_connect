@@ -70,7 +70,7 @@ void STLRender::setStyle(vtkSmartPointer<vtkInteractorStyleTrackballCamera> styl
 
 vector<vtkSmartPointer<Tube>> STLRender::getTubes() {
 
-    vector<vtkSmartPointer<Tube>> cylinders;
+    vector<vtkSmartPointer<Tube>> tubes;
 
     auto filter = vtkSmartPointer<vtkPolyDataConnectivityFilter>::New();
     filter->SetInputData(this->data);
@@ -90,9 +90,10 @@ vector<vtkSmartPointer<Tube>> STLRender::getTubes() {
         filter2->Update();
 
         tube->setData(filter2->GetOutput());
-        cylinders.emplace_back(tube);
+        tubes.emplace_back(tube);
     }
-    return cylinders;
+
+    return tubes;
 }
 
 vtkSmartPointer<vtkPolyData> STLRender::getData() {

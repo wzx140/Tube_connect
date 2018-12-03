@@ -91,7 +91,7 @@ namespace VectorUtil {
         vtkMath::Cross(vector1.data(), vector2.data(), tempCross.data());
         double rad = atan2(vtkMath::Norm(tempCross.data()), vtkMath::Dot(vector1.data(), vector2.data()));
         double deg = vtkMath::DegreesFromRadians(rad);
-        return deg;
+        return abs(deg);
     }
 
     void reverseVector(array<double, 3> &vector) {
@@ -111,7 +111,7 @@ namespace VectorUtil {
 
         array<double, 3> diffVector = {0};
         array<double, 3> normal = {0};
-        for (int i = 0; i < normals->GetNumberOfTuples(); i++) {
+        for (int i = static_cast<int>(normals->GetNumberOfTuples() / 2); i < normals->GetNumberOfTuples(); i++) {
             normals->GetTuple(i, normal.data());
             if (!VectorUtil::isEqual(normal, vector)) {
                 normals->GetTuple(i, diffVector.data());

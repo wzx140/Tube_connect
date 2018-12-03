@@ -74,7 +74,7 @@ TEST_F(STLRenderTest, getCylinderstest) {
     auto axes = vtkSmartPointer<vtkAxesActor>::New();
     axes->SetShaftType(0);
     axes->SetTotalLength(10, 10, 10);
-    axes->SetAxisLabels(0);
+    axes->SetAxisLabels(1);
 
 
     auto mapper1 = vtkSmartPointer<vtkPolyDataMapper>::New();

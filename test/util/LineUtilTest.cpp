@@ -26,10 +26,10 @@ protected:
 
 
 TEST_F(LineUtilTest, lineBlend) {
-    array<double, 3> point1 = {0, 0, 50};
-    array<double, 3> vector1 = {1, 1, -1};
-    array<double, 3> point2 = {50, 50, 50};
-    array<double, 3> vector2 = {-1, -1, -1};
+    array<double, 3> point1 = {16.302, 1.7644, 7};
+    array<double, 3> vector1 = {-0.433, -0.5, 0};
+    array<double, 3> point2 = {6.7775, -15, 7};
+    array<double, 3> vector2 = {0, 1, 0};
     vtkSmartPointer<vtkPoints> points = LineUtil::lineBlend(point1, vector1, point2, vector2, 100)->GetPoints();
 
     ::vector<vtkSmartPointer<vtkPolyData>> dataList;

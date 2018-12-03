@@ -34,6 +34,18 @@ private:
      */
     vtkSmartPointer<vtkDoubleArray> edgePoints;
 
+    /**
+     * points in the cell
+     */
+    vtkSmartPointer<vtkDoubleArray> points;
+
+    /**
+     * the number of the point in edge points
+     */
+    int resolution;
+public:
+    void setResolution(int resolution);
+
 public:
     Tube();
 
@@ -59,6 +71,12 @@ public:
     const array<double, 3> &getNormal() const;
 
     vtkSmartPointer<vtkDoubleArray> getEdgePoints();
+
+    /**
+     * this function must be called after set data
+     * @return
+     */
+    const vtkSmartPointer<vtkDoubleArray> getPoints() const;
 };
 
 

@@ -39,8 +39,8 @@ TEST_F(TubeTest, hasPointTest) {
 }
 
 TEST_F(TubeTest, updateNormalTest) {
-    array<double, 3> point1 = {0, 0, 50};
-    array<double, 3> point2 = {0, 0, -50};
+    array<double, 3> point1 = {10, 100, 100};
+    array<double, 3> point2 = {10, 100, -100};
 
     stlRender->setPath("res/test1.stl");
     stlRender->load();
@@ -66,12 +66,13 @@ TEST_F(TubeTest, updateNormalTest) {
 TEST_F(TubeTest, updateEdgeTest) {
     array<double, 3> point1 = {0, 0, 50};
 
-    stlRender->setPath("res/test1.stl");
+    stlRender->setPath("res/test2.stl");
     stlRender->load();
     auto tubes = stlRender->getTubes();
-    EXPECT_EQ(tubes.size(), 1);
     auto tube = tubes[0];
-    tube->update(point1);
+    array<double, 3> point{0, 0, 0};
+    tubes[1]->getPoints()->GetTuple(5, point.data());
+    tube->update(point);
     auto points = tube->getEdgePoints();
     vector<vtkSmartPointer<vtkPolyData>> dataList;
     dataList.push_back(stlRender->getData());
@@ -83,6 +84,7 @@ TEST_F(TubeTest, updateEdgeTest) {
         dataList.emplace_back(sphere->GetOutput());
     }
     stlRender->setInputData(dataList, 0.5);
+    stlRender->axisOn();
     stlRender->start();
 
 }

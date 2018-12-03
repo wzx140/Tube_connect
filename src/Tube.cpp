@@ -6,6 +6,7 @@
 #include <vtkTransform.h>
 #include <vtkMath.h>
 #include <vtkPoints.h>
+#include <vtkIdList.h>
 
 #include "../util/VectorUtil.h"
 
@@ -19,12 +20,26 @@ Tube::Tube() {
     this->data = vtkSmartPointer<vtkPolyData>::New();
     this->edgePoints = vtkSmartPointer<vtkDoubleArray>::New();
     this->edgePoints->SetNumberOfComponents(3);
+    this->points = vtkSmartPointer<vtkDoubleArray>::New();
+    this->points->SetNumberOfComponents(3);
     this->normal = {0};
 }
 
 
 void Tube::setData(vtkSmartPointer<vtkPolyData> data) {
     Tube::data = data;
+    auto polys = data->GetPolys();
+    vtkIdType npts = 0, *pts;
+    for (int i = 0; i < data->GetNumberOfPolys(); i++) {
+        int h = polys->GetNextCell(npts, pts);
+        if (h == 0) {
+            break;
+        } else if (npts == 3) {
+            this->points->InsertNextTuple(data->GetPoint(pts[0]));
+            this->points->InsertNextTuple(data->GetPoint(pts[1]));
+            this->points->InsertNextTuple(data->GetPoint(pts[2]));
+        }
+    }
 }
 
 vtkSmartPointer<vtkPolyData> Tube::getData() {
@@ -67,7 +82,7 @@ void Tube::update(array<double, 3> &point) {
     vtkMath::Cross(normal1.data(), normal2.data(), tubeNormal.data());
 
     array<double, 3> pointIn = {0};
-    this->data->GetPoint(0, pointIn.data());
+    this->points->GetTuple(0, pointIn.data());
     auto normalCompare = VectorUtil::getVector(pointIn, point);
     double degree = VectorUtil::getAngle(tubeNormal, normalCompare);
     if (degree > 90) {
@@ -80,43 +95,43 @@ void Tube::update(array<double, 3> &point) {
 
 //    extract edge of the tube
 
-    auto points = this->data->GetPoints();
     int pointID = 0;
     array<double, 3> edgePoint = {0};
     array<double, 3> pointTemp = {0};
-    for (int i = 0; i < points->GetNumberOfPoints(); i++) {
+    for (int i = 0; i < this->points->GetNumberOfTuples(); i++) {
 
-        int flag = 0;
-        points->GetPoint(i, edgePoint.data());
+        bool flag = true;
+        this->points->GetTuple(i, edgePoint.data());
 
-        for (int j = 0; j < points->GetNumberOfPoints(); j++) {
+        for (int j = 0; j < this->points->GetNumberOfTuples(); j++) {
             if (i != j) {
-                points->GetPoint(j, pointTemp.data());
+                this->points->GetTuple(j, pointTemp.data());
                 auto vector = VectorUtil::getVector(edgePoint, pointTemp);
-                if (VectorUtil::getAngle(vector, this->normal) < 90) {
+                double angle = VectorUtil::getAngle(vector, this->normal);
+                if (angle < 90 && angle > 0) {
+                    flag = false;
                     break;
-                } else {
-                    flag++;
                 }
             }
         }
 
-        if (flag == points->GetNumberOfPoints() - 1) {
+        if (flag) {
             this->edgePoints->InsertNextTuple(edgePoint.data());
             pointID = i;
             break;
         }
     }
 
-    for (int i = 0; i < points->GetNumberOfPoints(); i++) {
+    for (int i = 0; i < this->points->GetNumberOfTuples(); i++) {
         if (i != pointID) {
-            points->GetPoint(i, pointTemp.data());
+            this->points->GetTuple(i, pointTemp.data());
             auto vector = VectorUtil::getVector(pointTemp, edgePoint);
-            if (abs(VectorUtil::getAngle(vector, this->normal) - 90) < 0.001) {
+            if (abs(VectorUtil::getAngle(vector, this->normal) - 90) < 0.01) {
                 this->edgePoints->InsertNextTuple(pointTemp.data());
             }
         }
     }
+
 
 }
 
@@ -128,4 +143,13 @@ vtkSmartPointer<vtkDoubleArray> Tube::getEdgePoints() {
 const array<double, 3> &Tube::getNormal() const {
     return normal;
 }
+
+const vtkSmartPointer<vtkDoubleArray> Tube::getPoints() const {
+    return points;
+}
+
+void Tube::setResolution(int resolution) {
+    Tube::resolution = resolution;
+}
+
 
