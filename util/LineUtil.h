@@ -13,9 +13,9 @@
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkPointData.h>
 #include <vtkDoubleArray.h>
-#include <array>
 #include <vtkLine.h>
 #include <vtkArcSource.h>
+#include <array>
 
 #include "VectorUtil.h"
 
@@ -52,6 +52,22 @@ namespace LineUtil {
     inline array<double, 3> intersection(array<double, 3> &point1, array<double, 3> &vector1, array<double, 3> &point2,
                                          array<double, 3> &vector2);
 
+    /**
+     * get the center point of the line
+     * @param stPoint: the start point in the line
+     * @param endPoint: the end point in the line
+     * @return
+     */
+    inline array<double, 3> getCenter(array<double, 3> &stPoint, array<double, 3> &endPoint);
+
+    /**
+     * get length of two points
+     * @param stPoint
+     * @param endPoint
+     * @return
+     */
+    inline double getLength(array<double, 3> &stPoint, array<double, 3> &endPoint);
+
 
 }
 
@@ -63,6 +79,23 @@ namespace LineUtil {
         auto points = vtkSmartPointer<vtkPoints>::New();
         auto vectors = vtkSmartPointer<vtkDoubleArray>::New();
         auto data = vtkSmartPointer<vtkPolyData>::New();
+
+//        straight line
+//        auto vector = VectorUtil::getVector(stPoint, endPoint);
+//        vector[0] = vector[0] / resolution;
+//        vector[1] = vector[1] / resolution;
+//        vector[2] = vector[2] / resolution;
+//        for (int i = 0; i < resolution; i++) {
+//            array<double, 3> point{};
+//            point[0] = stPoint[0] + vector[0]*(i+1);
+//            point[1] = stPoint[1] + vector[1]*(i+1);
+//            point[2] = stPoint[2] + vector[2]*(i+1);
+//            points->InsertNextPoint(point.data());
+//        }
+//        data->SetPoints(points);
+//        return data;
+
+
         auto transform = vtkSmartPointer<vtkTransform>::New();
         auto filter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
         array<double, 3> stPointZ{};
@@ -102,24 +135,9 @@ namespace LineUtil {
 
 
 //      get circle center
-        array<double, 3> verStVector{};
-        array<double, 3> verEndVector{};
         auto verStVectors = VectorUtil::getVerVector(stVectorZ);
-        auto comVector = VectorUtil::getVector(stPointZ, endPointZ);
-        if (VectorUtil::getAngle(comVector, verStVectors[0]) < 90) {
-            verStVector = verStVectors[0];
-        } else {
-            verStVector = verStVectors[1];
-        }
-
         auto verEndVectors = VectorUtil::getVerVector(endVectorZ);
-        VectorUtil::reverseVector(comVector);
-        if (VectorUtil::getAngle(comVector, verStVectors[0]) < 90) {
-            verEndVector = verEndVectors[0];
-        } else {
-            verEndVector = verEndVectors[1];
-        }
-        auto center = LineUtil::intersection(stPointZ, verStVector, endPointZ, verEndVector);
+        auto center = LineUtil::intersection(stPointZ, verStVectors[0], endPointZ, verEndVectors[0]);
         center[2] = pointZ;
 
         auto arc = vtkSmartPointer<vtkArcSource>::New();
@@ -139,15 +157,40 @@ namespace LineUtil {
 
     array<double, 3> intersection(array<double, 3> &point1, array<double, 3> &vector1, array<double, 3> &point2,
                                   array<double, 3> &vector2) {
-        array<double, 3> Secpoint = {0};
+        array<double, 3> SecPoint = {0};
+
         double k1 = vector1[1] / vector1[0];
         double k2 = vector2[1] / vector2[0];
 
-        Secpoint[0] = (point2[1] - point1[1] + k1 * point1[0] - k2 * point2[0]) / (k1 - k2);
-        Secpoint[1] = k1 * (Secpoint[0] - point1[0]) + point1[1];
+        if (vector1[0] == 0) {
+            SecPoint[0] = point1[0];
+            SecPoint[1] = k2 * (SecPoint[0] - point2[0]) + point2[1];
+            return SecPoint;
 
-        return Secpoint;
+        } else if (vector2[0] == 0) {
+            SecPoint[0] = point2[0];
+            SecPoint[1] = k1 * (SecPoint[0] - point1[0]) + point1[1];
+            return SecPoint;
+        }
 
+        SecPoint[0] = (point2[1] - point1[1] + k1 * point1[0] - k2 * point2[0]) / (k1 - k2);
+        SecPoint[1] = k1 * (SecPoint[0] - point1[0]) + point1[1];
+
+        return SecPoint;
+
+    }
+
+    array<double, 3> getCenter(array<double, 3> &stPoint, array<double, 3> &endPoint) {
+        array<double, 3> center{};
+        center[0] = (stPoint[0] + endPoint[0]) / 2;
+        center[1] = (stPoint[1] + endPoint[1]) / 2;
+        center[2] = (stPoint[2] + endPoint[2]) / 2;
+        return center;
+    }
+
+    double getLength(array<double, 3> &stPoint, array<double, 3> &endPoint) {
+        return sqrt(pow(stPoint[0] - endPoint[0], 2) + pow(stPoint[1] - endPoint[1], 2) +
+                    pow(stPoint[2] - endPoint[2], 2));
     }
 
 

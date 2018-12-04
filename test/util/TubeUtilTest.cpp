@@ -24,14 +24,14 @@ protected:
 TEST_F(TubeUtilTest, connectTest) {
     auto tubes = stlRender->getTubes();
     for (int i = 0; i < tubes.size(); i++) {
-        array<double, 3> point{0, 0, 0};
         int index = i + 1;
         if (i == tubes.size() - 1) {
             index = 0;
         }
-        tubes[index]->getPoints()->GetTuple(5, point.data());
+        auto point = tubes[index]->getPoints()[5];
         tubes[i]->update(point);
     }
+
     vector<vtkSmartPointer<vtkPolyData>> source;
     vector<vtkSmartPointer<vtkPolyData>> dataList;
     auto data1 = TubeUtil::connect(tubes[0]->getEdgePoints(), tubes[0]->getNormal(), tubes[1]->getEdgePoints(),
@@ -51,7 +51,7 @@ TEST_F(TubeUtilTest, connectTest) {
             array<double, 3> point{};
             points->GetPoint(i, point.data());
             sphere->SetCenter(point.data());
-            sphere->SetRadius(0.5);
+            sphere->SetRadius(0.2);
             sphere->Update();
             dataList.emplace_back(sphere->GetOutput());
         }
@@ -70,7 +70,7 @@ TEST_F(TubeUtilTest, connectTest) {
         }
     }
     this->stlRender->setInputData(dataList, 1);
-//    this->stlRender->axisOn();
+    this->stlRender->axisOn();
     this->stlRender->start();
 
 

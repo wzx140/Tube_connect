@@ -47,6 +47,13 @@ public:
     void setPath(const char *path);
 
     /**
+     * append the data set
+     * @param dataList
+     * @return
+     */
+    static vtkSmartPointer<vtkPolyData> append(vector<vtkSmartPointer<vtkPolyData>> &dataList);
+
+    /**
      * load the data from stl file
      */
     void load();

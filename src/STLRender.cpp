@@ -137,3 +137,12 @@ void STLRender::setInputData(vector<vtkSmartPointer<vtkPolyData>> dataList, doub
     this->actor = actor;
     this->renderer->AddActor(actor);
 }
+
+vtkSmartPointer<vtkPolyData> STLRender::append(vector<vtkSmartPointer<vtkPolyData>> &dataList) {
+    auto append = vtkSmartPointer<vtkAppendPolyData>::New();
+    for (int i = 0; i < dataList.size(); i++) {
+        append->AddInputData(dataList[i]);
+    }
+    append->Update();
+    return append->GetOutput();
+}

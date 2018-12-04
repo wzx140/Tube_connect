@@ -14,6 +14,7 @@
 #include <array>
 
 using std::array;
+using std::vector;
 
 
 class Tube : public vtkObject {
@@ -37,14 +38,12 @@ private:
     /**
      * points in the cell
      */
-    vtkSmartPointer<vtkDoubleArray> points;
+    vector<array<double, 3>> points;
 
     /**
      * the number of the point in edge points
      */
     int resolution;
-public:
-    void setResolution(int resolution);
 
 public:
     Tube();
@@ -76,7 +75,9 @@ public:
      * this function must be called after set data
      * @return
      */
-    const vtkSmartPointer<vtkDoubleArray> getPoints() const;
+    const vector<array<double, 3>> &getPoints() const;
+
+    void setResolution(int resolution);
 };
 
 

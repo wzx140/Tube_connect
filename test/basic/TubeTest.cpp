@@ -38,6 +38,29 @@ TEST_F(TubeTest, hasPointTest) {
     EXPECT_TRUE(tubes[1]->hasPoint(point4));
 }
 
+/**
+ * if you see the points on the tube, the test pass
+ */
+TEST_F(TubeTest, getPointsTest) {
+    stlRender->setPath("res/test1.stl");
+    stlRender->load();
+    auto tubes = stlRender->getTubes();
+    auto tube = tubes[0];
+    auto points = tube->getPoints();
+    vector<vtkSmartPointer<vtkPolyData>> dataList;
+    dataList.push_back(stlRender->getData());
+    for (auto &point : points) {
+        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
+        sphere->SetCenter(point.data());
+        sphere->SetRadius(0.2);
+        sphere->Update();
+        dataList.emplace_back(sphere->GetOutput());
+    }
+    stlRender->setInputData(dataList, 0.5);
+    stlRender->axisOn();
+    stlRender->start();
+}
+
 TEST_F(TubeTest, updateNormalTest) {
     array<double, 3> point1 = {10, 100, 100};
     array<double, 3> point2 = {10, 100, -100};
@@ -61,17 +84,15 @@ TEST_F(TubeTest, updateNormalTest) {
 }
 
 /**
- * if you see lots of points on the edge of tube, the test pass
+ * if you see lots of points on the edge of one tube, the test pass
  */
 TEST_F(TubeTest, updateEdgeTest) {
-    array<double, 3> point1 = {0, 0, 50};
 
     stlRender->setPath("res/test2.stl");
     stlRender->load();
     auto tubes = stlRender->getTubes();
     auto tube = tubes[0];
-    array<double, 3> point{0, 0, 0};
-    tubes[1]->getPoints()->GetTuple(5, point.data());
+    auto point = tubes[1]->getPoints()[0];
     tube->update(point);
     auto points = tube->getEdgePoints();
     vector<vtkSmartPointer<vtkPolyData>> dataList;
@@ -79,7 +100,7 @@ TEST_F(TubeTest, updateEdgeTest) {
     for (int i = 0; i < points->GetNumberOfTuples(); i++) {
         auto sphere = vtkSmartPointer<vtkSphereSource>::New();
         sphere->SetCenter(points->GetTuple3(i));
-        sphere->SetRadius(0.1);
+        sphere->SetRadius(0.5);
         sphere->Update();
         dataList.emplace_back(sphere->GetOutput());
     }
