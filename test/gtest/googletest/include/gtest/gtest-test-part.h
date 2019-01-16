@@ -133,7 +133,7 @@ class GTEST_API_ TestPartResultArray {
   // Appends the given TestPartResult to the array.
   void Append(const TestPartResult& result);
 
-  // Returns the TestPartResult at the given index (0-based).
+    // Returns the TestPartResult at the given ids (0-based).
   const TestPartResult& GetTestPartResult(int index) const;
 
   // Returns the number of TestPartResult objects in the array.

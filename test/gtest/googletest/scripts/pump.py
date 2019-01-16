@@ -643,11 +643,11 @@ class Output:
     self.string = ''
 
   def GetLastLine(self):
-    index = self.string.rfind('\n')
-    if index < 0:
+    ids = self.string.rfind('\n')
+    if ids < 0:
       return ''
 
-    return self.string[index + 1:]
+    return self.string[ids + 1:]
 
   def Append(self, s):
     self.string += s

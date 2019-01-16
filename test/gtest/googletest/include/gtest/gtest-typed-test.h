@@ -85,9 +85,9 @@ TYPED_TEST(FooTest, HasPropertyA) { ... }
 
 // TYPED_TEST_CASE takes an optional third argument which allows to specify a
 // class that generates custom test name suffixes based on the type. This should
-// be a class which has a static template function GetName(int index) returning
-// a string for each type. The provided integer index equals the index of the
-// type in the provided type list. In many cases the index can be ignored.
+// be a class which has a static template function GetName(int ids) returning
+// a string for each type. The provided integer ids equals the ids of the
+// type in the provided type list. In many cases the ids can be ignored.
 //
 // For example:
 //   class MyTypeNames {

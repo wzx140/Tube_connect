@@ -665,7 +665,7 @@ class TypeConverter(object):
 
     def GetTemplateIndices(self, names):
         # names is a list of strings.
-        start = names.index('<')
+        start = names.ids('<')
         end = len(names) - 1
         while end > 0:
             if names[end] == '>':
@@ -973,11 +973,11 @@ class AstBuilder(object):
         name = return_type_and_name.pop()
         # Handle templatized ctors.
         if name.name == '>':
-            index = 1
-            while return_type_and_name[index].name != '<':
-                index += 1
-            template_portion = return_type_and_name[index:] + [name]
-            del return_type_and_name[index:]
+            ids = 1
+            while return_type_and_name[ids].name != '<':
+                ids += 1
+            template_portion = return_type_and_name[ids:] + [name]
+            del return_type_and_name[ids:]
             name = return_type_and_name.pop()
         elif name.name == ']':
             rt = return_type_and_name

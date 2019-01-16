@@ -6,6 +6,7 @@
 #include <vtkTransform.h>
 
 #include "../util/CircleUtil.h"
+#include "../util/TubeUtil.h"
 
 using std::cout;
 
@@ -15,8 +16,6 @@ Tube *Tube::New() {
 
 Tube::Tube() {
     this->data = vtkSmartPointer<vtkPolyData>::New();
-    this->edgePoints = vtkSmartPointer<vtkDoubleArray>::New();
-    this->edgePoints->SetNumberOfComponents(3);
     this->resolution = 50;
     this->normal = {0};
 }
@@ -96,70 +95,24 @@ void Tube::update(array<double, 3> &point) {
     auto normalCompare = VectorUtil::getVector(pointIn, point);
     double degree = VectorUtil::getAngle(tubeNormal, normalCompare);
     if (degree > 90) {
-        VectorUtil::reverseVector(tubeNormal);
+        VectorUtil::reverse(tubeNormal);
     }
     VectorUtil::regularize(tubeNormal);
 
     this->normal = tubeNormal;
 
+    auto edgePoints = TubeUtil::getEdgePoint(this->points, this->normal);
 
-//    extract edge of the tube
-
-    int pointID = 0;
-    array<double, 3> edgePoint1 = {0};
-    array<double, 3> edgePoint2 = {0};
-    array<double, 3> edgePoint3 = {0};
-
-    for (int i = 0; i < this->points.size(); i++) {
-
-        bool flag = true;
-        edgePoint1 = this->points[i];
-
-        for (int j = 0; j < this->points.size(); j++) {
-            if (i != j) {
-                auto pointTemp = this->points[j];
-                auto vector = VectorUtil::getVector(edgePoint1, pointTemp);
-                double angle = VectorUtil::getAngle(vector, this->normal);
-                if (angle < 90 && angle > 0) {
-                    flag = false;
-                    break;
-                }
-            }
-        }
-        if (flag) {
-            pointID = i;
-            break;
-        }
-    }
-
-//  get three point in the edge
-    int pointNum = 2;
-    for (int i = 0; i < this->points.size(); i++) {
-        if (i != pointID) {
-            auto point = this->points[i];
-            auto vector = VectorUtil::getVector(point, edgePoint1);
-            if (abs(VectorUtil::getAngle(vector, this->normal) - 90) < 0.01) {
-                if (pointNum == 2) {
-                    edgePoint2 = point;
-                    pointNum--;
-                } else if (pointNum == 1) {
-                    edgePoint3 = point;
-                    pointNum--;
-                } else if (pointNum == 0) {
-                    break;
-                }
-            }
-        }
-    }
-    this->edgePoints = CircleUtil::getCircle(edgePoint1, edgePoint2, edgePoint3, this->normal, this->resolution);
-
+    this->edgePoints = CircleUtil::getCircle(edgePoints[0], edgePoints[1], edgePoints[2], this->normal,
+                                             this->resolution);
 }
 
-vtkSmartPointer<vtkDoubleArray> Tube::getEdgePoints() {
+
+vector<array<double, 3>> &Tube::getEdgePoints() {
     return edgePoints;
 }
 
-const array<double, 3> &Tube::getNormal() const {
+array<double, 3> &Tube::getNormal() {
     return normal;
 }
 
@@ -170,3 +123,34 @@ const vector<array<double, 3>> &Tube::getPoints() const {
 void Tube::setResolution(int resolution) {
     Tube::resolution = resolution;
 }
+
+array<array<double, 3>, 2> Tube::getStructureLine() {
+    //    calculate tubeNormal
+    array<array<double, 3>, 2> line{};
+    auto normals = VectorUtil::calculateNormals(this->data);
+    array<double, 3> normal1 = {0};
+    normals->GetTuple(0, normal1.data());
+    auto normal2 = VectorUtil::getDifferentVector(normals, normal1);
+
+    array<double, 3> tubeNormal = {0};
+    vtkMath::Cross(normal1.data(), normal2.data(), tubeNormal.data());
+
+    auto edgePoints = TubeUtil::getEdgePoint(this->points, tubeNormal);
+    auto center1 = CircleUtil::getCenter(edgePoints[0], edgePoints[1], edgePoints[2], tubeNormal);
+
+    VectorUtil::reverse(tubeNormal);
+    edgePoints = TubeUtil::getEdgePoint(this->points, tubeNormal);
+    auto center2 = CircleUtil::getCenter(edgePoints[0], edgePoints[1], edgePoints[2], tubeNormal);
+
+    line[0] = center1;
+    line[1] = center2;
+
+    return line;
+}
+
+void Tube::update(array<double, 3> &normal, array<double, 3> &center, double radius) {
+    this->normal = normal;
+
+    this->edgePoints = CircleUtil::getCircle(center, radius, this->normal, this->resolution);
+}
+

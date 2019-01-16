@@ -63,10 +63,10 @@ void TestPartResultArray::Append(const TestPartResult& result) {
   array_.push_back(result);
 }
 
-// Returns the TestPartResult at the given index (0-based).
+// Returns the TestPartResult at the given ids (0-based).
 const TestPartResult& TestPartResultArray::GetTestPartResult(int index) const {
   if (index < 0 || index >= size()) {
-    printf("\nInvalid index (%d) into TestPartResultArray.\n", index);
+      printf("\nInvalid ids (%d) into TestPartResultArray.\n", index);
     internal::posix::Abort();
   }
 

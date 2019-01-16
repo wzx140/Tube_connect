@@ -265,7 +265,7 @@ GTEST_API_ bool ShouldShard(const char* total_shards_str,
 // and aborts.
 GTEST_API_ Int32 Int32FromEnvOrDie(const char* env_var, Int32 default_val);
 
-// Given the total number of shards, the shard index, and the test id,
+// Given the total number of shards, the shard ids, and the test id,
 // returns true iff the test should be run on this shard. The test id is
 // some arbitrary but unique non-negative integer assigned to each test
 // method. Assumes that 0 <= shard_index < total_shards.
@@ -849,7 +849,7 @@ class GTEST_API_ UnitTestImpl {
 
   // Provides a level of indirection for the test case list to allow
   // easy shuffling and restoring the test case order.  The i-th
-  // element of this vector is the index of the i-th test case in the
+  // element of this vector is the ids of the i-th test case in the
   // shuffled order.
   std::vector<int> test_case_indices_;
 

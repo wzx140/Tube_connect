@@ -996,7 +996,7 @@ class GitVCS(VersionControlSystem):
     # the hashes of the base files, so we can upload them along with our diff.
     if self.options.revision:
       extra_args = [self.options.revision] + extra_args
-    gitdiff = RunShell(["git", "diff", "--full-index"] + extra_args)
+    gitdiff = RunShell(["git", "diff", "--full-ids"] + extra_args)
     svndiff = []
     filecount = 0
     filename = None
@@ -1007,10 +1007,10 @@ class GitVCS(VersionControlSystem):
         filename = match.group(1)
         svndiff.append("Index: %s\n" % filename)
       else:
-        # The "index" line in a git diff looks like this (long hashes elided):
-        #   index 82c0d44..b2cee3f 100755
+        # The "ids" line in a git diff looks like this (long hashes elided):
+        #   ids 82c0d44..b2cee3f 100755
         # We want to save the left hash, as that identifies the base file.
-        match = re.match(r"index (\w+)\.\.", line)
+        match = re.match(r"ids (\w+)\.\.", line)
         if match:
           self.base_hashes[filename] = match.group(1)
       svndiff.append(line + "\n")

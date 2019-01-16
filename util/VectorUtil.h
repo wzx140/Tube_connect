@@ -36,7 +36,7 @@ namespace VectorUtil {
      * reverse vector
      * @param vector: three components
      */
-    inline void reverseVector(array<double, 3> &vector);
+    inline void reverse(array<double, 3> &vector);
 
     /**
      *  regularize the vector
@@ -74,6 +74,15 @@ namespace VectorUtil {
      */
     inline array<array<double, 3>, 2> getVerVector(array<double, 3> &vector);
 
+    /**
+     * move the point
+     * @param point
+     * @param vector
+     * @param length
+     * @return
+     */
+    inline array<double, 3> movePoint(array<double, 3> &point, array<double, 3> &vector, double length);
+
 }
 
 namespace VectorUtil {
@@ -94,7 +103,7 @@ namespace VectorUtil {
         return abs(deg);
     }
 
-    void reverseVector(array<double, 3> &vector) {
+    void reverse(array<double, 3> &vector) {
         for (int i = 0; i < 3; i++) {
             vector[i] = -vector[i];
         }
@@ -157,6 +166,14 @@ namespace VectorUtil {
         verVectors[1] = verVector2;
 
         return verVectors;
+    }
+
+    array<double, 3> movePoint(array<double, 3> &point, array<double, 3> &vector, double length) {
+        array<double, 3> nextPoint = {0};
+        for (int i = 0; i < 3; i++) {
+            nextPoint[i] = point[i] + vector[i] * length;
+        }
+        return nextPoint;
     }
 }
 

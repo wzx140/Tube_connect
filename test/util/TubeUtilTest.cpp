@@ -61,9 +61,9 @@ TEST_F(TubeUtilTest, connectTest) {
     for (int i = 0; i < 3; i++) {
         auto points = tubes[i]->getEdgePoints();
 
-        for (int i = 0; i < points->GetNumberOfTuples(); i++) {
+        for (int i = 0; i < points.size(); i++) {
             auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-            sphere->SetCenter(points->GetTuple3(i));
+            sphere->SetCenter(points[i].data());
             sphere->SetRadius(0.5);
             sphere->Update();
             dataList.emplace_back(sphere->GetOutput());
@@ -72,6 +72,18 @@ TEST_F(TubeUtilTest, connectTest) {
     this->stlRender->setInputData(dataList, 1);
     this->stlRender->axisOn();
     this->stlRender->start();
+}
+
+TEST_F(TubeUtilTest, createTubeTest) {
+    array<array<double, 3>, 2> line1 = {{{0, 0, 0}, {10, 0, 0}}};
+    array<array<double, 3>, 2> line2 = {{{0, 0, 0}, {0, 10, 0}}};
+    vector<array<array<double, 3>, 2>> lines;
+    lines.emplace_back(line1);
+    lines.emplace_back(line2);
+    auto graph = TubeUtil::createTube(lines, 2, 20);
 
 
+    this->stlRender->setInputData(graph, 1);
+    this->stlRender->axisOn();
+    this->stlRender->start();
 }

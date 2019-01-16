@@ -164,7 +164,7 @@ static const char kDefaultOutputFormat[] = "xml";
 // The default output file.
 static const char kDefaultOutputFile[] = "test_detail";
 
-// The environment variable name for the test shard index.
+// The environment variable name for the test shard ids.
 static const char kTestShardIndex[] = "GTEST_SHARD_INDEX";
 // The environment variable name for the total number of test shards.
 static const char kTestTotalShards[] = "GTEST_TOTAL_SHARDS";
@@ -5323,7 +5323,7 @@ Int32 Int32FromEnvOrDie(const char* var, Int32 default_val) {
   return result;
 }
 
-// Given the total number of shards, the shard index, and the test id,
+// Given the total number of shards, the shard ids, and the test id,
 // returns true iff the test should be run on this shard. The test id is
 // some arbitrary but unique non-negative integer assigned to each test
 // method. Assumes that 0 <= shard_index < total_shards.
@@ -5529,7 +5529,7 @@ void UnitTestImpl::UnshuffleTests() {
   for (size_t i = 0; i < test_cases_.size(); i++) {
     // Unshuffles the tests in each test case.
     test_cases_[i]->UnshuffleTests();
-    // Resets the index of each test case.
+      // Resets the ids of each test case.
     test_case_indices_[i] = static_cast<int>(i);
   }
 }

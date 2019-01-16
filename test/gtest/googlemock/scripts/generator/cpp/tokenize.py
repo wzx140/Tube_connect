@@ -67,8 +67,8 @@ class Token(object):
     Tokens can be identifiers, syntax char(s), constants, or
     pre-processor directives.
 
-    start contains the index of the first char of the token in the source
-    end contains the index of the last char of the token in the source
+    start contains the ids of the first char of the token in the source
+    end contains the ids of the last char of the token in the source
     """
 
     def __init__(self, token_type, name, start, end):
@@ -265,7 +265,7 @@ def GetTokens(source):
             raise RuntimeError('unexpected token')
 
         if i <= 0:
-            print('Invalid index, exiting now.')
+            print('Invalid ids, exiting now.')
             return
         yield Token(token_type, source[start:i], start, i)
 
@@ -280,7 +280,7 @@ if __name__ == '__main__':
 
             for token in GetTokens(source):
                 print('%-12s: %s' % (token.token_type, token.name))
-                # print('\r%6.2f%%' % (100.0 * index / token.end),)
+                # print('\r%6.2f%%' % (100.0 * ids / token.end),)
             sys.stdout.write('\n')
 
 

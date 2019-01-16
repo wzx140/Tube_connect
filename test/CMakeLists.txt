@@ -1,8 +1,8 @@
 add_subdirectory(gtest)
 
-set(TEST_FILES basic/CellPickerInteractorStyleTest.cpp basic/STLRenderTest.cpp basic/TubeTest.cpp main.cpp util/VectorUtilTest.cpp util/LineUtilTest.cpp util/TubeUtilTest.cpp)
-set(SRC_FILES ../src/CellPickerInteractorStyle.cpp ../src/STLRender.cpp ../src/Tube.cpp ../include/CellPickerInteractorStyle.h ../include/STLRender.h ../include/Tube.h ../util/VectorUtil.h)
-set(RESOURCE_FILES res/test1.stl res/test2.stl)
+set(TEST_FILES basic/CellPickerInteractorStyleTest.cpp basic/STLRenderTest.cpp basic/TubeTest.cpp main.cpp util/VectorUtilTest.cpp util/LineUtilTest.cpp util/TubeUtilTest.cpp basic/GraphTest.cpp)
+set(SRC_FILES ../src/CellPickerInteractorStyle.cpp ../src/STLRender.cpp ../src/Tube.cpp ../include/CellPickerInteractorStyle.h ../include/STLRender.h ../include/Tube.h ../util/VectorUtil.h ../src/Graph.cpp ../include/Graph.h ../src/Intersection.cpp ../include/Intersection.h)
+set(RESOURCE_FILES res/test1.stl res/test2.stl res/test3.stl)
 
 file(COPY ${RESOURCE_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/res)
 

@@ -117,8 +117,8 @@ GTEST_DEFINE_bool_(
 
 namespace internal {
 GTEST_DEFINE_string_(
-    internal_run_death_test, "",
-    "Indicates the file, line number, temporal index of "
+        internal_run_death_test, "",
+        "Indicates the file, line number, temporal ids of "
     "the single death test to run, and a file descriptor to "
     "which a success code may be sent, all separated by "
     "the '|' characters.  This flag is specified if and only if the current "
@@ -1594,7 +1594,7 @@ InternalRunDeathTestFlag* ParseInternalRunDeathTestFlag() {
 
   if (fields.size() != 6
       || !ParseNaturalNumber(fields[1], &line)
-      || !ParseNaturalNumber(fields[2], &index)
+      || !ParseNaturalNumber(fields[2], &ids)
       || !ParseNaturalNumber(fields[3], &parent_process_id)
       || !ParseNaturalNumber(fields[4], &write_handle_as_size_t)
       || !ParseNaturalNumber(fields[5], &event_handle_as_size_t)) {
@@ -1609,7 +1609,7 @@ InternalRunDeathTestFlag* ParseInternalRunDeathTestFlag() {
 
   if (fields.size() != 3
       || !ParseNaturalNumber(fields[1], &line)
-      || !ParseNaturalNumber(fields[2], &index)) {
+      || !ParseNaturalNumber(fields[2], &ids)) {
     DeathTestAbort("Bad --gtest_internal_run_death_test flag: "
         + GTEST_FLAG(internal_run_death_test));
   }

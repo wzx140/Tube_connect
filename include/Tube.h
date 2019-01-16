@@ -33,7 +33,7 @@ private:
     /**
      * the edge of the tube used to connect curved face
      */
-    vtkSmartPointer<vtkDoubleArray> edgePoints;
+    vector<array<double, 3>> edgePoints;
 
     /**
      * points in the cell
@@ -63,13 +63,21 @@ public:
      */
     void update(array<double, 3> &point);
 
+    /**
+     * calculate the edge point
+     * @param normal: normal of the tube
+     * @param center: center of the edge point
+     * @param radius: radius of the edge
+     */
+    void update(array<double, 3> &normal, array<double, 3> &center, double radius);
+
     void setData(vtkSmartPointer<vtkPolyData> data);
 
     vtkSmartPointer<vtkPolyData> getData();
 
-    const array<double, 3> &getNormal() const;
+    array<double, 3> &getNormal();
 
-    vtkSmartPointer<vtkDoubleArray> getEdgePoints();
+    vector<array<double, 3>> &getEdgePoints();
 
     /**
      * this function must be called after set data
@@ -78,6 +86,9 @@ public:
     const vector<array<double, 3>> &getPoints() const;
 
     void setResolution(int resolution);
+
+    array<array<double, 3>, 2> getStructureLine();
+
 };
 
 

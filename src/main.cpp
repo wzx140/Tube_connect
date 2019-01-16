@@ -2,10 +2,15 @@
 #include <vtkDelaunay3D.h>
 #include <vtkSurfaceReconstructionFilter.h>
 #include <vtkContourFilter.h>
+#include <time.h>
 #include "../include/CellPickerInteractorStyle.h"
 #include "../util/TubeUtil.h"
 
 int main(int argc, char **argv) {
+
+//    time of run
+    clock_t startTime, endTime;
+    startTime = clock();
 
     vtkSmartPointer<STLRender> stlRender = vtkSmartPointer<STLRender>::New();
     stlRender->setPath("test/res/test2.stl");
@@ -13,9 +18,10 @@ int main(int argc, char **argv) {
 
 //    generate normal and edge points
     auto tubes = stlRender->getTubes();
+
     for (int i = 0; i < tubes.size(); i++) {
         int index = TubeUtil::next(i, tubes.size(), 0);
-        auto point = tubes[index]->getPoints()[0];
+        auto point = tubes[i]->getPoints()[0];
         tubes[i]->update(point);
     }
 
@@ -48,5 +54,8 @@ int main(int argc, char **argv) {
     stlRender->setInputData(dataList, 1);
 //    stlRender->axisOn();
     stlRender->start();
+
+    endTime = clock();
+    cout << "Totle Time : " << (double) (endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 }
 

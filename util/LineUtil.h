@@ -15,11 +15,15 @@
 #include <vtkDoubleArray.h>
 #include <vtkLine.h>
 #include <vtkArcSource.h>
-#include <array>
+#include <vtkParametricSpline.h>
+#include <vtkParametricFunctionSource.h>
+#include <vtkPoints.h>
 
 #include "VectorUtil.h"
 
+
 using std::array;
+using std::vector;
 
 namespace LineUtil {
     const double zAxis[3] = {0, 0, 1};
@@ -53,6 +57,19 @@ namespace LineUtil {
                                          array<double, 3> &vector2);
 
     /**
+     * get intersection of two line segments
+     * @param point11
+     * @param point12
+     * @param point21
+     * @param point22
+     * @param point: intersection
+     * @return 1->intersect 0->not intersect
+     */
+    inline int
+    intersection3D(array<double, 3> &point11, array<double, 3> &point12, array<double, 3> &point21,
+                   array<double, 3> &point22, array<double, 3> &point);
+
+    /**
      * get the center point of the line
      * @param stPoint: the start point in the line
      * @param endPoint: the end point in the line
@@ -68,6 +85,35 @@ namespace LineUtil {
      */
     inline double getLength(array<double, 3> &stPoint, array<double, 3> &endPoint);
 
+    /**
+     * extend the line
+     * @param point1
+     * @param point2
+     */
+    inline void extend(array<double, 3> &point1, array<double, 3> &point2, double length);
+
+    /**
+     * cut the line with point and length
+     * @param point1: point of the line
+     * @param point2: point of the line
+     * @param point: the cut point
+     * @param length: the length of the cut, two-way
+     * @return two lines defined by four points
+     */
+    inline array<array<double, 3>, 4>
+    cut(array<double, 3> &point1, array<double, 3> &point2, array<double, 3> &point, double length);
+
+    /**
+     * cut the line with points and length
+     * @param point1: point of the line
+     * @param point2: point of the line
+     * @param points: the cut points
+     * @param length: the length of the cut, two-way
+     * @return if the number of the points is n, return n+1 lines defined by 2(n+1) points
+     */
+    inline vector<array<array<double, 3>, 2>>
+    cut(array<double, 3> &point1, array<double, 3> &point2, vector<array<double, 3>> &points, double length);
+
 
 }
 
@@ -76,83 +122,25 @@ namespace LineUtil {
     vtkSmartPointer<vtkPolyData>
     lineBlend(array<double, 3> &stPoint, array<double, 3> &stVector, array<double, 3> &endPoint,
               array<double, 3> &endVector, int resolution) {
+
+        double length = getLength(stPoint, endPoint) / double(4);
+        auto stPoint2 = VectorUtil::movePoint(stPoint, stVector, length);
+        auto endPoint2 = VectorUtil::movePoint(endPoint, endVector, length);
+
         auto points = vtkSmartPointer<vtkPoints>::New();
-        auto vectors = vtkSmartPointer<vtkDoubleArray>::New();
-        auto data = vtkSmartPointer<vtkPolyData>::New();
-
-//        straight line
-//        auto vector = VectorUtil::getVector(stPoint, endPoint);
-//        vector[0] = vector[0] / resolution;
-//        vector[1] = vector[1] / resolution;
-//        vector[2] = vector[2] / resolution;
-//        for (int i = 0; i < resolution; i++) {
-//            array<double, 3> point{};
-//            point[0] = stPoint[0] + vector[0]*(i+1);
-//            point[1] = stPoint[1] + vector[1]*(i+1);
-//            point[2] = stPoint[2] + vector[2]*(i+1);
-//            points->InsertNextPoint(point.data());
-//        }
-//        data->SetPoints(points);
-//        return data;
-
-
-        auto transform = vtkSmartPointer<vtkTransform>::New();
-        auto filter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
-        array<double, 3> stPointZ{};
-        array<double, 3> stVectorZ{};
-        array<double, 3> endPointZ{};
-        array<double, 3> endVectorZ{};
-
         points->InsertNextPoint(stPoint.data());
+        points->InsertNextPoint(stPoint2.data());
+        points->InsertNextPoint(endPoint2.data());
         points->InsertNextPoint(endPoint.data());
-        data->SetPoints(points);
-        vectors->SetNumberOfComponents(3);
-        vectors->InsertNextTuple(stVector.data());
-        vectors->InsertNextTuple(endVector.data());
-        data->GetPointData()->SetVectors(vectors);
 
 
-//      rotate to xy-z
-        array<double, 3> nAxis = {0};
-        vtkMath::Cross(stVector.data(), endVector.data(), nAxis.data());
-        VectorUtil::regularize(nAxis);
-        double theta = vtkMath::DegreesFromRadians(acos(vtkMath::Dot(nAxis.data(), zAxis)));
-        array<double, 3> axis = {0};
-        vtkMath::Cross(nAxis.data(), zAxis, axis.data());
-        transform->RotateWXYZ(theta, axis.data());
-        filter->SetTransform(transform);
-        filter->SetInputData(data);
-        filter->Update();
-        filter->GetOutput()->GetPoint(0, stPointZ.data());
-        filter->GetOutput()->GetPoint(1, endPointZ.data());
-        filter->GetOutput()->GetPointData()->GetVectors()->GetTuple(0, stVectorZ.data());
-        filter->GetOutput()->GetPointData()->GetVectors()->GetTuple(1, endVectorZ.data());
+        auto spline = vtkSmartPointer<vtkParametricSpline>::New();
+        spline->SetPoints(points);
+        auto splineSource = vtkSmartPointer<vtkParametricFunctionSource>::New();
+        splineSource->SetParametricFunction(spline);
+        splineSource->Update();
 
-//        if (stPointZ[2] != endPointZ[2]) {
-//            cout << "error" << endl;
-//        }
-        double pointZ = stPointZ[2];
-
-
-//      get circle center
-        auto verStVectors = VectorUtil::getVerVector(stVectorZ);
-        auto verEndVectors = VectorUtil::getVerVector(endVectorZ);
-        auto center = LineUtil::intersection(stPointZ, verStVectors[0], endPointZ, verEndVectors[0]);
-        center[2] = pointZ;
-
-        auto arc = vtkSmartPointer<vtkArcSource>::New();
-        arc->SetCenter(center.data());
-        arc->SetPoint1(stPointZ.data());
-        arc->SetPoint2(endPointZ.data());
-        arc->SetResolution(resolution);
-        arc->Update();
-
-//      rotate back
-        filter->SetTransform(transform->GetInverse());
-        filter->SetInputData(arc->GetOutput());
-        filter->Update();
-
-        return filter->GetOutput();
+        return splineSource->GetOutput();
     }
 
     array<double, 3> intersection(array<double, 3> &point1, array<double, 3> &vector1, array<double, 3> &point2,
@@ -191,6 +179,100 @@ namespace LineUtil {
     double getLength(array<double, 3> &stPoint, array<double, 3> &endPoint) {
         return sqrt(pow(stPoint[0] - endPoint[0], 2) + pow(stPoint[1] - endPoint[1], 2) +
                     pow(stPoint[2] - endPoint[2], 2));
+    }
+
+    void extend(array<double, 3> &point1, array<double, 3> &point2, double length) {
+        auto vector = VectorUtil::getVector(point1, point2);
+        VectorUtil::regularize(vector);
+        for (int i = 0; i < 3; i++) {
+            point2[i] = point2[i] + vector[i] * (length / 2);
+        }
+        VectorUtil::reverse(vector);
+        for (int i = 0; i < 3; i++) {
+            point1[i] = point1[i] + vector[i] * (length / 2);
+        }
+
+    }
+
+    int intersection3D(array<double, 3> &point11, array<double, 3> &point12, array<double, 3> &point21,
+                       array<double, 3> &point22, array<double, 3> &point) {
+        double u = 0;
+        double v = 0;
+//        2->intersection   3->collinear or parallel  0->faceted
+        int state = vtkLine::Intersection3D(point11.data(), point12.data(), point21.data(), point22.data(), u, v);
+        if (state == 2) {
+            auto vector = VectorUtil::getVector(point11, point12);
+//            cout << u << endl;
+//            cout << v << endl;
+            point[0] = point11[0] + vector[0] * u;
+            point[1] = point11[1] + vector[1] * u;
+            point[2] = point11[2] + vector[2] * u;
+            return 1;
+        } else {
+            return 0;
+        }
+
+
+    }
+
+    array<array<double, 3>, 4>
+    cut(array<double, 3> &point1, array<double, 3> &point2, array<double, 3> &point, double length) {
+        array<array<double, 3>, 4> points{};
+        array<double, 3> point_1{};
+        array<double, 3> point_2{};
+
+        auto vector = VectorUtil::getVector(point, point1);
+        VectorUtil::regularize(vector);
+        point_1.at(0) = point.at(0) + vector.at(0) * length;
+        point_1.at(1) = point.at(1) + vector.at(1) * length;
+        point_1.at(2) = point.at(2) + vector.at(2) * length;
+
+        VectorUtil::reverse(vector);
+        point_2.at(0) = point.at(0) + vector.at(0) * length;
+        point_2.at(1) = point.at(1) + vector.at(1) * length;
+        point_2.at(2) = point.at(2) + vector.at(2) * length;
+
+        points.at(0) = point1;
+        points.at(1) = point_1;
+        points.at(2) = point2;
+        points.at(3) = point_2;
+
+        return points;
+    }
+
+    vector<array<array<double, 3>, 2>>
+    cut(array<double, 3> &point1, array<double, 3> &point2, vector<array<double, 3>> &points, double length) {
+        vector<array<array<double, 3>, 2>> returnLines;
+
+        // sort
+        auto vector = VectorUtil::getVector(point1, point2);
+        for (int i = 0; i < points.size(); i++) {
+            for (int j = i; j < points.size(); j++) {
+                auto length1 = LineUtil::getLength(point1, points.at(i));
+                auto length2 = LineUtil::getLength(point1, points.at(j));
+                if (length1 > length2) {
+                    std::swap(points.at(i), points.at(j));
+                }
+            }
+        }
+
+        // cut
+        array<array<double, 3>, 2> line2{};
+        line2.at(0) = point1;
+        line2.at(1) = point2;
+        for (int i = 0; i < points.size(); i++) {
+            auto lines = cut(line2.at(0), line2.at(1), points.at(i), length);
+            array<array<double, 3>, 2> line1{};
+            line1.at(0) = lines[0];
+            line1.at(1) = lines[1];
+            line2.at(0) = lines[3];
+            line2.at(1) = lines[2];
+            returnLines.emplace_back(line1);
+        }
+        returnLines.emplace_back(line2);
+
+        return returnLines;
+
     }
 
 

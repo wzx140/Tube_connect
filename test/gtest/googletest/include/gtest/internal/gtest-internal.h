@@ -650,9 +650,9 @@ std::vector<std::string> GenerateNames() {
 template <GTEST_TEMPLATE_ Fixture, class TestSel, typename Types>
 class TypeParameterizedTest {
  public:
-  // 'index' is the index of the test in the type list 'Types'
+    // 'ids' is the ids of the test in the type list 'Types'
   // specified in INSTANTIATE_TYPED_TEST_CASE_P(Prefix, TestCase,
-  // Types).  Valid values for 'index' are [0, N - 1] where N is the
+    // Types).  Valid values for 'ids' are [0, N - 1] where N is the
   // length of Types.
   static bool Register(const char* prefix, const CodeLocation& code_location,
                        const char* case_name, const char* test_names, int index,
@@ -691,7 +691,7 @@ class TypeParameterizedTest<Fixture, TestSel, Types0> {
  public:
   static bool Register(const char* /*prefix*/, const CodeLocation&,
                        const char* /*case_name*/, const char* /*test_names*/,
-                       int /*index*/,
+                       int /*ids*/,
                        const std::vector<std::string>& =
                            std::vector<std::string>() /*type_names*/) {
     return true;
