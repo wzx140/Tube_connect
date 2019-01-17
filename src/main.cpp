@@ -2,9 +2,9 @@
 #include <vtkDelaunay3D.h>
 #include <vtkSurfaceReconstructionFilter.h>
 #include <vtkContourFilter.h>
-#include <time.h>
 #include "../include/CellPickerInteractorStyle.h"
 #include "../util/TubeUtil.h"
+#include "../include/Graph.h"
 
 int main(int argc, char **argv) {
 
@@ -12,32 +12,19 @@ int main(int argc, char **argv) {
     clock_t startTime, endTime;
     startTime = clock();
 
-    vtkSmartPointer<STLRender> stlRender = vtkSmartPointer<STLRender>::New();
-    stlRender->setPath("test/res/test2.stl");
+    auto stlRender = vtkSmartPointer<STLRender>::New();
+    stlRender->setPath("test/res/test3.stl");
     stlRender->load();
 
-//    generate normal and edge points
+    auto graph = vtkSmartPointer<Graph>::New();
     auto tubes = stlRender->getTubes();
+    graph->setLength(200);
+    graph->setRadius(5);
+    graph->setCoefficient3(0.1);
+    graph->create(tubes);
+    graph->update();
 
-    for (int i = 0; i < tubes.size(); i++) {
-        int index = TubeUtil::next(i, tubes.size(), 0);
-        auto point = tubes[i]->getPoints()[0];
-        tubes[i]->update(point);
-    }
-
-//    generate lines to connect and sample the points on them
-    vector<vtkSmartPointer<vtkPolyData>> dataList;
-    auto data1 = TubeUtil::connect(tubes[0]->getEdgePoints(), tubes[0]->getNormal(), tubes[1]->getEdgePoints(),
-                                   tubes[1]->getNormal(), 0.5, 50);
-    auto data2 = TubeUtil::connect(tubes[0]->getEdgePoints(), tubes[0]->getNormal(), tubes[2]->getEdgePoints(),
-                                   tubes[2]->getNormal(), 0.5, 50);
-    auto data3 = TubeUtil::connect(tubes[1]->getEdgePoints(), tubes[1]->getNormal(), tubes[2]->getEdgePoints(),
-                                   tubes[2]->getNormal(), 0.5, 50);
-    dataList.insert(dataList.end(), data1.begin(), data1.end());
-    dataList.insert(dataList.end(), data2.begin(), data2.end());
-    dataList.insert(dataList.end(), data3.begin(), data3.end());
-    auto data = STLRender::append(dataList);
-
+    auto data = STLRender::append(graph->getOutput(1));
 
     auto surf = vtkSmartPointer<vtkSurfaceReconstructionFilter>::New();
     surf->SetInputData(data);
@@ -48,9 +35,10 @@ int main(int argc, char **argv) {
     contour->Update();
 
 
-    dataList.clear();
+    vector<vtkSmartPointer<vtkPolyData>> dataList;
     dataList.emplace_back(contour->GetOutput());
-    dataList.emplace_back(stlRender->getData());
+//    dataList.emplace_back(data);
+    dataList.emplace_back(graph->getOutput(2)[0]);
     stlRender->setInputData(dataList, 1);
 //    stlRender->axisOn();
     stlRender->start();

@@ -41,12 +41,44 @@ private:
      */
     double length;
 
+    /**
+     * determine the room in intersections
+     */
+    double coefficient1;
+
+    /**
+     * determine the room in intersections
+     */
+    double coefficient2;
+
+    /**
+     * determine the resolution
+     */
+    double coefficient3;
+
+    vector<vtkSmartPointer<vtkPolyData>> dataList;
 public:
     Graph();
 
     static Graph *New();
 
+    /**
+     * extend structural lines and generate intersections
+     * @param tubes
+     */
     void create(vector<vtkSmartPointer<Tube>> tubes);
+
+    /**
+     * blend tubes
+     */
+    void update();
+
+    /**
+     * 0->all data , 1-> connections , 2-> tubes
+     * @param i
+     * @return
+     */
+    vector<vtkSmartPointer<vtkPolyData>> getOutput(int i);
 
     vector<array<array<double, 3>, 2>> &getLines();
 
@@ -55,6 +87,13 @@ public:
     void setLength(double length);
 
     vector<vtkSmartPointer<Intersection>> &getIntersections();
+
+    void setCoefficient1(double coefficient1);
+
+    void setCoefficient2(double coefficient2);
+
+    void setCoefficient3(double coefficient3);
+
 };
 
 

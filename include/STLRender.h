@@ -51,7 +51,7 @@ public:
      * @param dataList
      * @return
      */
-    static vtkSmartPointer<vtkPolyData> append(vector<vtkSmartPointer<vtkPolyData>> &dataList);
+    static vtkSmartPointer<vtkPolyData> append(const vector<vtkSmartPointer<vtkPolyData>> &dataList);
 
     /**
      * load the data from stl file

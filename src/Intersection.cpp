@@ -4,12 +4,11 @@
 
 #include "../include/Intersection.h"
 
-Intersection::Intersection() {
-
-}
+Intersection::Intersection() = default;
 
 bool Intersection::hasId(int id) {
-    for (const auto &item : ids) {
+    for (int i = 0; i < this->info.size(); i++) {
+        int item = this->info.at(i).first;
         if (item == id) {
             return true;
         }
@@ -54,5 +53,22 @@ void Intersection::addTube(vtkSmartPointer<Tube> tube) {
 }
 
 void Intersection::addId(int id) {
-    this->ids.push_back(id);
+    pair<int, double> a(id, 0);
+
+    this->info.push_back(a);
 }
+
+vector<pair<int, double>> &Intersection::getInfo() {
+    return info;
+}
+
+double Intersection::getRoom(int id) {
+    for (int i = 0; i < this->info.size(); i++) {
+        if (this->info.at(i).first == id) {
+            return this->info.at(i).second;
+        }
+    }
+    return 0;
+}
+
+

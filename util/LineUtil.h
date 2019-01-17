@@ -108,11 +108,19 @@ namespace LineUtil {
      * @param point1: point of the line
      * @param point2: point of the line
      * @param points: the cut points
-     * @param length: the length of the cut, two-way
+     * @param length: the length of the each cut, two-way
      * @return if the number of the points is n, return n+1 lines defined by 2(n+1) points
      */
     inline vector<array<array<double, 3>, 2>>
-    cut(array<double, 3> &point1, array<double, 3> &point2, vector<array<double, 3>> &points, double length);
+    cut(array<double, 3> &point1, array<double, 3> &point2, vector<array<double, 3>> &points, vector<double> &length);
+
+    /**
+     * Are the two segments on the same line
+     * @param line1
+     * @param line2
+     * @return
+     */
+    inline bool isCollinear(array<array<double, 3>, 2> &line1, array<array<double, 3>, 2> &line2);
 
 
 }
@@ -139,6 +147,10 @@ namespace LineUtil {
         auto splineSource = vtkSmartPointer<vtkParametricFunctionSource>::New();
         splineSource->SetParametricFunction(spline);
         splineSource->Update();
+
+//        auto data = splineSource->GetOutput();
+//
+//        data->DeleteCell(0);
 
         return splineSource->GetOutput();
     }
@@ -241,7 +253,7 @@ namespace LineUtil {
     }
 
     vector<array<array<double, 3>, 2>>
-    cut(array<double, 3> &point1, array<double, 3> &point2, vector<array<double, 3>> &points, double length) {
+    cut(array<double, 3> &point1, array<double, 3> &point2, vector<array<double, 3>> &points, vector<double> &length) {
         vector<array<array<double, 3>, 2>> returnLines;
 
         // sort
@@ -252,6 +264,7 @@ namespace LineUtil {
                 auto length2 = LineUtil::getLength(point1, points.at(j));
                 if (length1 > length2) {
                     std::swap(points.at(i), points.at(j));
+                    std::swap(length.at(i), length.at(j));
                 }
             }
         }
@@ -261,7 +274,7 @@ namespace LineUtil {
         line2.at(0) = point1;
         line2.at(1) = point2;
         for (int i = 0; i < points.size(); i++) {
-            auto lines = cut(line2.at(0), line2.at(1), points.at(i), length);
+            auto lines = cut(line2.at(0), line2.at(1), points.at(i), length.at(i));
             array<array<double, 3>, 2> line1{};
             line1.at(0) = lines[0];
             line1.at(1) = lines[1];
@@ -272,6 +285,26 @@ namespace LineUtil {
         returnLines.emplace_back(line2);
 
         return returnLines;
+
+    }
+
+    bool isCollinear(array<array<double, 3>, 2> &line1, array<array<double, 3>, 2> &line2) {
+        auto vector1 = VectorUtil::getVector(line1[0], line1[1]);
+        auto vector2 = VectorUtil::getVector(line2[0], line2[1]);
+        auto vector3 = VectorUtil::getVector(line1[0], line2[0]);
+        VectorUtil::regularize(vector1);
+        VectorUtil::regularize(vector2);
+        VectorUtil::regularize(vector3);
+
+        if (!VectorUtil::isEqual(vector1, vector2)) {
+            VectorUtil::reverse(vector2);
+        }
+
+        if (!VectorUtil::isEqual(vector1, vector3)) {
+            VectorUtil::reverse(vector3);
+        }
+
+        return VectorUtil::isEqual(vector1, vector2) && VectorUtil::isEqual(vector1, vector3);
 
     }
 

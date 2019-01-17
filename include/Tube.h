@@ -58,12 +58,6 @@ public:
     bool hasPoint(array<double, 3> point);
 
     /**
-     * this fuction must be called after set date
-     * @param point: used to calculate the positive-direction normal of the tube, it must on one of the other tube
-     */
-    void update(array<double, 3> &point);
-
-    /**
      * calculate the edge point
      * @param normal: normal of the tube
      * @param center: center of the edge point

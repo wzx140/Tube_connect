@@ -4,10 +4,10 @@
 #include <gtest/gtest.h>
 #include <vtkSphereSource.h>
 #include <vector>
-#include <vtkArrowSource.h>
 
 #include "../../util/LineUtil.h"
 #include "../../include/STLRender.h"
+#include "../../util/CircleUtil.h"
 
 using std::vector;
 
@@ -128,7 +128,8 @@ TEST_F(LineUtilTest, cut2Test) {
     points_.emplace_back(point1);
     points_.emplace_back(point3);
 
-    auto lines = LineUtil::cut(point11, point12, points_, 2);
+    vector<double> a{2, 2, 2};
+    auto lines = LineUtil::cut(point11, point12, points_, a);
 
     auto data = vtkSmartPointer<vtkPolyData>::New();
     auto points = vtkSmartPointer<vtkPoints>::New();

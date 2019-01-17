@@ -81,33 +81,6 @@ bool Tube::hasPoint(array<double, 3> point) {
     return false;
 }
 
-void Tube::update(array<double, 3> &point) {
-//    calculate tubeNormal
-    auto normals = VectorUtil::calculateNormals(this->data);
-    array<double, 3> normal1 = {0};
-    normals->GetTuple(0, normal1.data());
-    auto normal2 = VectorUtil::getDifferentVector(normals, normal1);
-
-    array<double, 3> tubeNormal = {0};
-    vtkMath::Cross(normal1.data(), normal2.data(), tubeNormal.data());
-
-    auto pointIn = this->points[0];
-    auto normalCompare = VectorUtil::getVector(pointIn, point);
-    double degree = VectorUtil::getAngle(tubeNormal, normalCompare);
-    if (degree > 90) {
-        VectorUtil::reverse(tubeNormal);
-    }
-    VectorUtil::regularize(tubeNormal);
-
-    this->normal = tubeNormal;
-
-    auto edgePoints = TubeUtil::getEdgePoint(this->points, this->normal);
-
-    this->edgePoints = CircleUtil::getCircle(edgePoints[0], edgePoints[1], edgePoints[2], this->normal,
-                                             this->resolution);
-}
-
-
 vector<array<double, 3>> &Tube::getEdgePoints() {
     return edgePoints;
 }

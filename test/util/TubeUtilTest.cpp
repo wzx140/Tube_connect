@@ -5,6 +5,7 @@
 #include <vtkSphereSource.h>
 #include "../../include/STLRender.h"
 #include "../../util/TubeUtil.h"
+#include "../../include/Graph.h"
 
 using std::vector;
 
@@ -23,52 +24,38 @@ protected:
 
 TEST_F(TubeUtilTest, connectTest) {
     auto tubes = stlRender->getTubes();
-    for (int i = 0; i < tubes.size(); i++) {
-        int index = i + 1;
-        if (i == tubes.size() - 1) {
-            index = 0;
-        }
-        auto point = tubes[index]->getPoints()[5];
-        tubes[i]->update(point);
-    }
 
-    vector<vtkSmartPointer<vtkPolyData>> source;
+    auto graph = vtkSmartPointer<Graph>::New();
+    graph->setLength(200);
+    graph->setRadius(5);
+    graph->setCoefficient3(0.05);
+    graph->create(tubes);
+    auto interSection = graph->getIntersections()[0];
+    auto tube1 = interSection->getTubes()[0];
+    auto tube2 = interSection->getTubes()[2];
+
     vector<vtkSmartPointer<vtkPolyData>> dataList;
-    auto data1 = TubeUtil::connect(tubes[0]->getEdgePoints(), tubes[0]->getNormal(), tubes[1]->getEdgePoints(),
-                                   tubes[1]->getNormal(), 0.5, 50);
-    auto data2 = TubeUtil::connect(tubes[0]->getEdgePoints(), tubes[0]->getNormal(), tubes[2]->getEdgePoints(),
-                                   tubes[2]->getNormal(), 0.5, 50);
-    auto data3 = TubeUtil::connect(tubes[1]->getEdgePoints(), tubes[1]->getNormal(), tubes[2]->getEdgePoints(),
-                                   tubes[2]->getNormal(), 0.5, 50);
+    auto edge1 = tube1->getEdgePoints();
+    auto edge2 = tube2->getEdgePoints();
 
-    source.insert(source.end(), data1.begin(), data1.end());
-    source.insert(source.end(), data2.begin(), data2.end());
-    source.insert(source.end(), data3.begin(), data3.end());
-    for (int i = 0; i < source.size(); i++) {
-        auto points = source[i]->GetPoints();
-        for (int i = 0; i < points->GetNumberOfPoints(); i++) {
-            auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-            array<double, 3> point{};
-            points->GetPoint(i, point.data());
-            sphere->SetCenter(point.data());
-            sphere->SetRadius(0.2);
-            sphere->Update();
-            dataList.emplace_back(sphere->GetOutput());
-        }
+    auto data = TubeUtil::connect(edge1, tube1->getNormal(), edge2, tube2->getNormal(), 2, 5);
+    dataList.insert(dataList.end(), data.begin(), data.end());
 
+    for (int i = 0; i < edge1.size(); i++) {
+        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
+        sphere->SetCenter(edge1[i].data());
+        sphere->SetRadius(0.2);
+        sphere->Update();
+        dataList.emplace_back(sphere->GetOutput());
     }
-    dataList.push_back(stlRender->getData());
-    for (int i = 0; i < 3; i++) {
-        auto points = tubes[i]->getEdgePoints();
-
-        for (int i = 0; i < points.size(); i++) {
-            auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-            sphere->SetCenter(points[i].data());
-            sphere->SetRadius(0.5);
-            sphere->Update();
-            dataList.emplace_back(sphere->GetOutput());
-        }
+    for (int i = 0; i < edge2.size(); i++) {
+        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
+        sphere->SetCenter(edge2[i].data());
+        sphere->SetRadius(0.2);
+        sphere->Update();
+        dataList.emplace_back(sphere->GetOutput());
     }
+
     this->stlRender->setInputData(dataList, 1);
     this->stlRender->axisOn();
     this->stlRender->start();

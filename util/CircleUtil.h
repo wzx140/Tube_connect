@@ -223,8 +223,8 @@ namespace CircleUtil {
 //      sample the points on the circle
         for (int i = 0; i < resolution; ++i) {
             double theta = vtkMath::RadiansFromDegrees(360. * i / double(resolution));
-            double x = radius * cos(theta);
-            double y = radius * sin(theta);
+            double x = pointZ[0] + radius * cos(theta);
+            double y = pointZ[1] + radius * sin(theta);
             points->InsertNextPoint(x, y, pointZ[2]);
         }
         data->Reset();
