@@ -20,30 +20,28 @@ int main(int argc, char **argv) {
     auto tubes = stlRender->getTubes();
     graph->setLength(200);
     graph->setRadius(5);
-    graph->setCoefficient3(0.1);
+    graph->setCoefficient3(0.2);
     graph->create(tubes);
     graph->update();
 
-    auto data = STLRender::append(graph->getOutput(1));
-
-    auto surf = vtkSmartPointer<vtkSurfaceReconstructionFilter>::New();
-    surf->SetInputData(data);
-    surf->Update();
-    auto contour = vtkSmartPointer<vtkContourFilter>::New();
-    contour->SetInputConnection(surf->GetOutputPort());
-    contour->SetValue(0, 0.0);
-    contour->Update();
-
-
     vector<vtkSmartPointer<vtkPolyData>> dataList;
-    dataList.emplace_back(contour->GetOutput());
-//    dataList.emplace_back(data);
-    dataList.emplace_back(graph->getOutput(2)[0]);
+    for (int i = 1; i < graph->getIntersections().size() + 1; i++) {
+        auto surf = vtkSmartPointer<vtkSurfaceReconstructionFilter>::New();
+        surf->SetInputData(graph->getOutput(i));
+        surf->Update();
+        auto contour = vtkSmartPointer<vtkContourFilter>::New();
+        contour->SetInputConnection(surf->GetOutputPort());
+        contour->SetValue(0, 0.0);
+        contour->Update();
+        dataList.emplace_back(contour->GetOutput());
+    }
+
+    dataList.emplace_back(graph->getOutput(0));
     stlRender->setInputData(dataList, 1);
 //    stlRender->axisOn();
     stlRender->start();
 
     endTime = clock();
-    cout << "Totle Time : " << (double) (endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+    cout << "Total Time : " << (double) (endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 }
 

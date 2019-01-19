@@ -25,16 +25,26 @@ protected:
 };
 
 /**
- * if you see a smooth curve line, the test is pass
+ * if you see a smooth curve line based on 10 points, the test is pass
  */
 TEST_F(LineUtilTest, lineBlendTest) {
     array<double, 3> point1 = {0, 0, 0};
     array<double, 3> vector1 = {1, 0, 1};
     array<double, 3> point2 = {10, 10, 10};
     array<double, 3> vector2 = {1, -1, 1};
-    auto data = LineUtil::lineBlend(point1, vector1, point2, vector2, 50);
+    auto data = LineUtil::lineBlend(point1, vector1, point2, vector2, 10);
+    auto points = data->GetPoints();
+    vector<vtkSmartPointer<vtkPolyData>> dataList;
 
-    stlRender->setInputData(data, 0.5);
+    for (int i = 0; i < points->GetNumberOfPoints(); i++) {
+        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
+        sphere->SetCenter(points->GetPoint(i));
+        sphere->SetRadius(0.2);
+        sphere->Update();
+        dataList.emplace_back(sphere->GetOutput());
+    }
+
+    stlRender->setInputData(dataList, 0.5);
     stlRender->axisOn();
     stlRender->start();
 

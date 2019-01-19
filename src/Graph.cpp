@@ -3,9 +3,11 @@
 //
 
 #include <cmath>
+#include <vtkPolygon.h>
 
 #include "../util/TubeUtil.h"
 #include "../include/Graph.h"
+#include "../include/STLRender.h"
 
 using std::pair;
 using std::sort;
@@ -16,6 +18,7 @@ Graph::Graph() {
     this->coefficient1 = 1.5;
     this->coefficient2 = 2;
     this->coefficient3 = 0.2;
+    this->coefficient4 = 2;
 }
 
 Graph *Graph::New() {
@@ -128,7 +131,10 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
             auto tube1 = vtkSmartPointer<Tube>::New();
             auto tube2 = vtkSmartPointer<Tube>::New();
-            int resolution = static_cast<int>(180 * (info.size() - 1) * this->coefficient3) + 2;
+            //todo: new function
+            int resolution =
+                    static_cast<int>((180 * this->coefficient3 + this->coefficient4 * 2) * (info.size() - 1) +
+                                     this->coefficient4) + 1;
             tube1->setResolution(resolution);
             tube2->setResolution(resolution);
 
@@ -159,6 +165,7 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
         this->lines.insert(this->lines.end(), linesCut.begin(), linesCut.end());
     }
 
+
 }
 
 bool cmp(pair<array<int, 2>, double> &T1, pair<array<int, 2>, double> &T2);
@@ -167,6 +174,7 @@ void Graph::update() {
     this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, 20));
 
     for (int i = 0; i < this->intersections.size(); i++) {
+        vector<vtkSmartPointer<vtkPolyData>> connection;
         //sort by angle
         auto tubes = this->intersections.at(i)->getTubes();
         vector<pair<array<int, 2>, double>> tubePairs;
@@ -182,19 +190,19 @@ void Graph::update() {
         for (int i = 0; i < tubePairs.size(); i++) {
 
             double angle = tubePairs.at(i).second;
-            if (angle == 180) {
-                continue;
-            }
+
+            int resolution = static_cast<int>((180 - angle) * this->coefficient3 + this->coefficient4);
+
             int id1 = tubePairs.at(i).first[0];
             int id2 = tubePairs.at(i).first[1];
-            int resolution = static_cast<int>((180 - angle) * this->coefficient3 / 2);
+            //todo: bump problem
             auto data = TubeUtil::connect(tubes.at(id1)->getEdgePoints(), tubes.at(id1)->getNormal(),
-                                          tubes.at(id2)->getEdgePoints(), tubes.at(id2)->getNormal(), resolution, 50);
-            this->dataList.insert(dataList.end(), data.begin(), data.end());
+                                          tubes.at(id2)->getEdgePoints(), tubes.at(id2)->getNormal(), resolution, 0);
+            connection.insert(connection.end(), data.begin(), data.end());
         }
 
+        this->dataList.emplace_back(STLRender::append(connection));
     }
-
 
 }
 
@@ -222,27 +230,16 @@ void Graph::setCoefficient2(double coefficient2) {
     Graph::coefficient2 = coefficient2;
 }
 
-vector<vtkSmartPointer<vtkPolyData>> Graph::getOutput(int i) {
-
-    vector<vtkSmartPointer<vtkPolyData>> data;
-    if (i == 0) {
-        return dataList;
-
-    } else if (i == 1) {
-        for (int i = 1; i < this->dataList.size(); i++) {
-            data.emplace_back(dataList.at(i));
-        }
-        return data;
-    } else if (i == 2) {
-        data.emplace_back(dataList.at(0));
-        return data;
-    }
-    return dataList;
-
+vtkSmartPointer<vtkPolyData> Graph::getOutput(int i) {
+    return dataList[i];
 }
 
 void Graph::setCoefficient3(double coefficient3) {
     Graph::coefficient3 = coefficient3;
+}
+
+void Graph::setCoefficient4(double coefficient4) {
+    Graph::coefficient4 = coefficient4;
 }
 
 /**

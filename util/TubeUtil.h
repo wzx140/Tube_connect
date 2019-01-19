@@ -51,15 +51,6 @@ namespace TubeUtil {
     getShortPointPair(vector<array<double, 3>> &edge1, vector<array<double, 3>> &edge2);
 
     /**
-     * get the next index, like circulation
-     * @param index: the previous index
-     * @param num: the num of the index
-     * @param mode: 0->index+1, 1->index-1
-     * @return
-     */
-    inline int next(int index, int num, int mode);
-
-    /**
      *  generate a tube around each input line
      *  @param data: include lots of lines
      *  @param radius
@@ -77,104 +68,16 @@ namespace TubeUtil {
             array<double, 3> &vector2, int num, int resolution) {
 
         vector<vtkSmartPointer<vtkPolyData>> data;
-        auto index = getShortPointPair(edge1, edge2);
-        int index1Temp = index[0];
-        int index2Temp = index[1];
-        int num1 = edge1.size();
-        int num2 = edge2.size();
 
-//        the point to extinct
-        vector<int> exIndex1;
-        vector<int> exIndex2;
-        exIndex1.push_back(index1Temp);
-        exIndex2.push_back(index2Temp);
-
-        auto lineData = LineUtil::lineBlend(edge1.at(index[0]), vector1, edge2.at(index[1]), vector2, resolution);
-
-        data.push_back(lineData);
-
-//      determine whether it is a positive point pair or a reverse point pair
-        int mode = 0;
-        double distance1 = LineUtil::getLength(edge1.at(next(index[0], num1, 0)), edge2.at(next(index[1], num2, 0)));
-
-        double distance2 = LineUtil::getLength(edge1.at(next(index[0], num1, 0)), edge2.at(next(index[1], num2, 1)));
-
-        if (distance1 < distance2) {
-            mode = 0;
-        } else {
-            mode = 1;
-        }
-
-//        generate lines
-        if (mode == 0) {
-            for (int i = 0; i < num; i++) {
-                index1Temp = next(index1Temp, num1, 0);
-                index2Temp = next(index2Temp, num2, 0);
-                exIndex1.push_back(index1Temp);
-                exIndex2.push_back(index2Temp);
-                lineData = LineUtil::lineBlend(edge1[index1Temp], vector1, edge2[index2Temp], vector2, resolution);
-                data.push_back(lineData);
-            }
-            index1Temp = index[0];
-            index2Temp = index[1];
-            for (int i = 0; i < num; i++) {
-                index1Temp = next(index1Temp, num1, 1);
-                index2Temp = next(index2Temp, num2, 1);
-                exIndex1.push_back(index1Temp);
-                exIndex2.push_back(index2Temp);
-                lineData = LineUtil::lineBlend(edge1[index1Temp], vector1, edge2[index2Temp], vector2, resolution);
-                data.push_back(lineData);
-            }
-
-        } else {
-            for (int i = 0; i < num; i++) {
-                index1Temp = next(index1Temp, num1, 1);
-                index2Temp = next(index2Temp, num2, 0);
-                exIndex1.push_back(index1Temp);
-                exIndex2.push_back(index2Temp);
-                lineData = LineUtil::lineBlend(edge1[index1Temp], vector1, edge2[index2Temp], vector2, resolution);
-                data.push_back(lineData);
-            }
-            index1Temp = index[0];
-            index2Temp = index[1];
-            for (int i = 0; i < num; i++) {
-                index1Temp = next(index1Temp, num1, 0);
-                index2Temp = next(index2Temp, num2, 1);
-                exIndex1.push_back(index1Temp);
-                exIndex2.push_back(index2Temp);
-                lineData = LineUtil::lineBlend(edge1[index1Temp], vector1, edge2[index2Temp], vector2, resolution);
-                data.push_back(lineData);
-            }
-        }
-
-        sort(exIndex1.begin(), exIndex1.end(), greater<int>());
-        sort(exIndex2.begin(), exIndex2.end(), greater<int>());
-
-//     inactivated points
-        for (int i = 0; i < exIndex1.size(); i++) {
-            edge1.erase(edge1.begin() + exIndex1.at(i));
-        }
-        for (int i = 0; i < exIndex2.size(); i++) {
-            edge2.erase(edge2.begin() + exIndex2.at(i));
+        for (int i = 0; i < num; i++) {
+            auto index = getShortPointPair(edge1, edge2);
+            auto lineData = LineUtil::lineBlend(edge1.at(index[0]), vector1, edge2.at(index[1]), vector2, resolution);
+            edge1.erase(edge1.begin() + index[0]);
+            edge2.erase(edge2.begin() + index[1]);
+            data.push_back(lineData);
         }
 
         return data;
-    }
-
-    int next(int index, int num, int mode) {
-        if (mode == 0) {
-            if (index == num - 1) {
-                return 0;
-            } else {
-                return index + 1;
-            }
-        } else {
-            if (index == 0) {
-                return num - 1;
-            } else {
-                return index - 1;
-            }
-        }
     }
 
     array<int, 2>

@@ -52,9 +52,16 @@ private:
     double coefficient2;
 
     /**
-     * determine the resolution
+     * determine the resolution like weight
      */
     double coefficient3;
+
+    /**
+     * determine the resolution like bias
+     */
+    double coefficient4;
+
+private:
 
     vector<vtkSmartPointer<vtkPolyData>> dataList;
 public:
@@ -74,11 +81,11 @@ public:
     void update();
 
     /**
-     * 0->all data , 1-> connections , 2-> tubes
+     * 0->tubes , others->connections
      * @param i
      * @return
      */
-    vector<vtkSmartPointer<vtkPolyData>> getOutput(int i);
+    vtkSmartPointer<vtkPolyData> getOutput(int i);
 
     vector<array<array<double, 3>, 2>> &getLines();
 
@@ -93,6 +100,8 @@ public:
     void setCoefficient2(double coefficient2);
 
     void setCoefficient3(double coefficient3);
+
+    void setCoefficient4(double coefficient4);
 
 };
 

@@ -18,6 +18,7 @@
 #include <vtkParametricSpline.h>
 #include <vtkParametricFunctionSource.h>
 #include <vtkPoints.h>
+#include <vtkCleanPolyData.h>
 
 #include "VectorUtil.h"
 
@@ -144,13 +145,11 @@ namespace LineUtil {
 
         auto spline = vtkSmartPointer<vtkParametricSpline>::New();
         spline->SetPoints(points);
+        spline->ClosedOff();
         auto splineSource = vtkSmartPointer<vtkParametricFunctionSource>::New();
         splineSource->SetParametricFunction(spline);
+//        splineSource->GenerateNormalsOn();
         splineSource->Update();
-
-//        auto data = splineSource->GetOutput();
-//
-//        data->DeleteCell(0);
 
         return splineSource->GetOutput();
     }

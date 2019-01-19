@@ -62,31 +62,6 @@ TEST_F(TubeTest, getPointsTest) {
     stlRender->start();
 }
 
-///**
-// * if you see lots of points on the edge of one tube, the test pass
-// */
-//TEST_F(TubeTest, updateEdgeTest) {
-//
-//    stlRender->setPath("res/test2.stl");
-//    stlRender->load();
-//    auto tubes = stlRender->getTubes();
-//    auto tube = tubes[0];
-//    auto point = tubes[1]->getPoints()[0];
-//    tube->update(point);
-//    auto points = tube->getEdgePoints();
-//    vector<vtkSmartPointer<vtkPolyData>> dataList;
-//    dataList.push_back(stlRender->getData());
-//    for (int i = 0; i < points.size(); i++) {
-//        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-//        sphere->SetCenter(points[i].data());
-//        sphere->SetRadius(0.5);
-//        sphere->Update();
-//        dataList.emplace_back(sphere->GetOutput());
-//    }
-//    stlRender->setInputData(dataList, 0.5);
-//    stlRender->axisOn();
-//    stlRender->start();
-//}
 
 /**
  * if you see a cylinder and its structure line, the test pass
