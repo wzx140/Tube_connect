@@ -29,10 +29,11 @@ protected:
  */
 TEST_F(LineUtilTest, lineBlendTest) {
     array<double, 3> point1 = {0, 0, 0};
-    array<double, 3> vector1 = {1, 0, 1};
-    array<double, 3> point2 = {10, 10, 10};
-    array<double, 3> vector2 = {1, -1, 1};
-    auto data = LineUtil::lineBlend(point1, vector1, point2, vector2, 10);
+    array<double, 3> vector1 = {0, 1, 0};
+    array<double, 3> point2 = {10, -1, 0};
+    array<double, 3> vector2 = {-0.525321, 0.525321, 0};
+    array<double, 3> center = {100, 100, 100};
+    auto data = LineUtil::lineBlend(point1, vector1, point2, vector2, center, 10);
     auto points = data->GetPoints();
     vector<vtkSmartPointer<vtkPolyData>> dataList;
 

@@ -122,8 +122,8 @@ array<array<double, 3>, 2> Tube::getStructureLine() {
 }
 
 void Tube::update(array<double, 3> &normal, array<double, 3> &center, double radius) {
+    VectorUtil::regularize(normal);
     this->normal = normal;
-
     this->edgePoints = CircleUtil::getCircle(center, radius, this->normal, this->resolution);
 }
 

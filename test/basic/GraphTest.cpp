@@ -26,7 +26,7 @@ TEST_F(GraphTest, createTest) {
     this->stlRender->setPath("res/test3.stl");
     stlRender->load();
     auto tubes = this->stlRender->getTubes();
-    graph->setLength(200);
+    graph->setLength(300);
     graph->setRadius(5);
     graph->create(tubes);
     auto lines = graph->getLines();
@@ -85,28 +85,19 @@ TEST_F(GraphTest, updateTest) {
     this->stlRender->setPath("res/test3.stl");
     stlRender->load();
     auto tubes = this->stlRender->getTubes();
-    graph->setLength(200);
-    graph->setRadius(5);
+    graph->setLength(250);
+    graph->setRadius(3);
     graph->setCoefficient3(0.2);
     graph->create(tubes);
     graph->update();
     vector<vtkSmartPointer<vtkPolyData>> dataList;
-    for (int j = 1; j < graph->getIntersections().size() + 1; j++) {
-        auto connection = graph->getOutput(j)->GetPoints();
-
-
-        for (int i = 0; i < connection->GetNumberOfPoints(); i++) {
-            auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-            sphere->SetCenter(connection->GetPoint(i));
-            sphere->SetRadius(0.1);
-            sphere->Update();
-            dataList.emplace_back(sphere->GetOutput());
-        }
+    for (int i = 1; i < graph->getIntersections().size() + 1; i++) {
+        dataList.emplace_back(graph->getOutput(i));
     }
     dataList.emplace_back(graph->getOutput(0));
 
 
     stlRender->setInputData(dataList, 1);
-    stlRender->axisOn();
+//    stlRender->axisOn();
     stlRender->start();
 }

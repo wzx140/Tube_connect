@@ -2,6 +2,7 @@
 #include <vtkDelaunay3D.h>
 #include <vtkSurfaceReconstructionFilter.h>
 #include <vtkContourFilter.h>
+#include <vtkReverseSense.h>
 #include "../include/CellPickerInteractorStyle.h"
 #include "../util/TubeUtil.h"
 #include "../include/Graph.h"
@@ -18,8 +19,8 @@ int main(int argc, char **argv) {
 
     auto graph = vtkSmartPointer<Graph>::New();
     auto tubes = stlRender->getTubes();
-    graph->setLength(200);
-    graph->setRadius(5);
+    graph->setLength(250);
+    graph->setRadius(3);
     graph->setCoefficient3(0.2);
     graph->create(tubes);
     graph->update();
@@ -28,12 +29,18 @@ int main(int argc, char **argv) {
     for (int i = 1; i < graph->getIntersections().size() + 1; i++) {
         auto surf = vtkSmartPointer<vtkSurfaceReconstructionFilter>::New();
         surf->SetInputData(graph->getOutput(i));
+        // the bigger value, the more time
+        surf->SetNeighborhoodSize(30);
         surf->Update();
         auto contour = vtkSmartPointer<vtkContourFilter>::New();
         contour->SetInputConnection(surf->GetOutputPort());
         contour->SetValue(0, 0.0);
-        contour->Update();
-        dataList.emplace_back(contour->GetOutput());
+        auto reverse = vtkSmartPointer<vtkReverseSense>::New();
+        reverse->SetInputConnection(contour->GetOutputPort());
+        reverse->ReverseCellsOn();
+        reverse->ReverseNormalsOn();
+        reverse->Update();
+        dataList.emplace_back(reverse->GetOutput());
     }
 
     dataList.emplace_back(graph->getOutput(0));

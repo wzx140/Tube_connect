@@ -30,6 +30,7 @@ namespace TubeUtil {
      * @param vector1: the normal of the edge1
      * @param edge2
      * @param vector2: the normal of the edge2
+     * @param center: the intersection point
      * @param num: the number of the connected edge point
      * @param resolution: the resolution of sampling
      * @warning the number of points in edge1 must be equal to edge2, the point connected will be inactivated
@@ -37,7 +38,7 @@ namespace TubeUtil {
      */
     inline vector<vtkSmartPointer<vtkPolyData>>
     connect(vector<array<double, 3>> &edge1, array<double, 3> &vector1, vector<array<double, 3>> &edge2,
-            array<double, 3> &vector2, int num, int resolution);
+            array<double, 3> &vector2, array<double, 3> &center, int num, int resolution);
 
     inline array<array<double, 3>, 3> getEdgePoint(vector<array<double, 3>> &points, array<double, 3> &normal);
 
@@ -65,13 +66,14 @@ namespace TubeUtil {
 
     vector<vtkSmartPointer<vtkPolyData>>
     connect(vector<array<double, 3>> &edge1, array<double, 3> &vector1, vector<array<double, 3>> &edge2,
-            array<double, 3> &vector2, int num, int resolution) {
+            array<double, 3> &vector2, array<double, 3> &center, int num, int resolution) {
 
         vector<vtkSmartPointer<vtkPolyData>> data;
 
         for (int i = 0; i < num; i++) {
             auto index = getShortPointPair(edge1, edge2);
-            auto lineData = LineUtil::lineBlend(edge1.at(index[0]), vector1, edge2.at(index[1]), vector2, resolution);
+            auto lineData = LineUtil::lineBlend(edge1.at(index[0]), vector1, edge2.at(index[1]), vector2, center,
+                                                resolution);
             edge1.erase(edge1.begin() + index[0]);
             edge2.erase(edge2.begin() + index[1]);
             data.push_back(lineData);

@@ -37,13 +37,14 @@ namespace LineUtil {
      * @param stVector: the vector of the start point in the start line
      * @param endPoint: the end point
      * @param endVector: the vector of the end point in the end line
+     * @param center: the intersection point
      * @param resolution: the num of the points in generated line
      ** @warning if two lines is parallel, it may cause error
      * @return
      */
     inline vtkSmartPointer<vtkPolyData>
     lineBlend(array<double, 3> &stPoint, array<double, 3> &stVector, array<double, 3> &endPoint,
-              array<double, 3> &endVector, int resolution);
+              array<double, 3> &endVector, array<double, 3> &center, int resolution);
 
     /**
      * get intersection of two lines in xy plane, the z-axis is 0
@@ -130,15 +131,28 @@ namespace LineUtil {
 
     vtkSmartPointer<vtkPolyData>
     lineBlend(array<double, 3> &stPoint, array<double, 3> &stVector, array<double, 3> &endPoint,
-              array<double, 3> &endVector, int resolution) {
+              array<double, 3> &endVector, array<double, 3> &center, int resolution) {
 
-        double length = getLength(stPoint, endPoint) / double(4);
+        double distance1 = getLength(stPoint, center);
+        double distance2 = getLength(endPoint, center);
+        auto dPoint1 = VectorUtil::movePoint(stPoint, stVector, distance1 * 10);
+        auto dPoint2 = VectorUtil::movePoint(endPoint, endVector, distance2 * 10);
+        array<double, 3> intersection{0, 0, 0};
+        int state = intersection3D(stPoint, dPoint1, endPoint, dPoint2, intersection);
+
+
+        double length = getLength(stPoint, endPoint) / 3;
         auto stPoint2 = VectorUtil::movePoint(stPoint, stVector, length);
         auto endPoint2 = VectorUtil::movePoint(endPoint, endVector, length);
 
         auto points = vtkSmartPointer<vtkPoints>::New();
         points->InsertNextPoint(stPoint.data());
         points->InsertNextPoint(stPoint2.data());
+
+        if (state == 1) {
+            points->InsertNextPoint(intersection.data());
+        }
+
         points->InsertNextPoint(endPoint2.data());
         points->InsertNextPoint(endPoint.data());
 
@@ -148,7 +162,7 @@ namespace LineUtil {
         spline->ClosedOff();
         auto splineSource = vtkSmartPointer<vtkParametricFunctionSource>::New();
         splineSource->SetParametricFunction(spline);
-//        splineSource->GenerateNormalsOn();
+        splineSource->GenerateNormalsOn();
         splineSource->Update();
 
         return splineSource->GetOutput();

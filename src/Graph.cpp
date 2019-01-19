@@ -131,10 +131,7 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
             auto tube1 = vtkSmartPointer<Tube>::New();
             auto tube2 = vtkSmartPointer<Tube>::New();
-            //todo: new function
-            int resolution =
-                    static_cast<int>((180 * this->coefficient3 + this->coefficient4 * 2) * (info.size() - 1) +
-                                     this->coefficient4) + 1;
+            int resolution = static_cast<int>(180 * this->coefficient3 * (info.size() - 1)) + 1;
             tube1->setResolution(resolution);
             tube2->setResolution(resolution);
 
@@ -187,17 +184,18 @@ void Graph::update() {
         sort(tubePairs.begin(), tubePairs.end(), cmp);
 
         //connect
-        for (int i = 0; i < tubePairs.size(); i++) {
+        for (int j = 0; j < tubePairs.size(); j++) {
 
-            double angle = tubePairs.at(i).second;
+            double angle = tubePairs.at(j).second;
 
-            int resolution = static_cast<int>((180 - angle) * this->coefficient3 + this->coefficient4);
+            int resolution = static_cast<int>((180 - angle) * this->coefficient3);
 
-            int id1 = tubePairs.at(i).first[0];
-            int id2 = tubePairs.at(i).first[1];
-            //todo: bump problem
+            int id1 = tubePairs.at(j).first[0];
+            int id2 = tubePairs.at(j).first[1];
+
             auto data = TubeUtil::connect(tubes.at(id1)->getEdgePoints(), tubes.at(id1)->getNormal(),
-                                          tubes.at(id2)->getEdgePoints(), tubes.at(id2)->getNormal(), resolution, 0);
+                                          tubes.at(id2)->getEdgePoints(), tubes.at(id2)->getNormal(),
+                                          this->intersections.at(i)->getPoint(), resolution, 0);
             connection.insert(connection.end(), data.begin(), data.end());
         }
 
@@ -236,10 +234,6 @@ vtkSmartPointer<vtkPolyData> Graph::getOutput(int i) {
 
 void Graph::setCoefficient3(double coefficient3) {
     Graph::coefficient3 = coefficient3;
-}
-
-void Graph::setCoefficient4(double coefficient4) {
-    Graph::coefficient4 = coefficient4;
 }
 
 /**

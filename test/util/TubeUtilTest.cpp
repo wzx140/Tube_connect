@@ -38,7 +38,9 @@ TEST_F(TubeUtilTest, connectTest) {
     auto edge1 = tube1->getEdgePoints();
     auto edge2 = tube2->getEdgePoints();
 
-    auto data = TubeUtil::connect(edge1, tube1->getNormal(), edge2, tube2->getNormal(), 2, 5);
+    array<double, 3> center{0, 0, 0};
+
+    auto data = TubeUtil::connect(edge1, tube1->getNormal(), edge2, tube2->getNormal(), center, 2, 5);
     dataList.insert(dataList.end(), data.begin(), data.end());
 
     for (int i = 0; i < edge1.size(); i++) {

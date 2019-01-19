@@ -52,14 +52,9 @@ private:
     double coefficient2;
 
     /**
-     * determine the resolution like weight
+     * determine the resolution of angle
      */
     double coefficient3;
-
-    /**
-     * determine the resolution like bias
-     */
-    double coefficient4;
 
 private:
 
@@ -100,8 +95,6 @@ public:
     void setCoefficient2(double coefficient2);
 
     void setCoefficient3(double coefficient3);
-
-    void setCoefficient4(double coefficient4);
 
 };
 
