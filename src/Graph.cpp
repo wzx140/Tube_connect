@@ -18,7 +18,6 @@ Graph::Graph() {
     this->coefficient1 = 1.5;
     this->coefficient2 = 2;
     this->coefficient3 = 0.2;
-    this->coefficient4 = 2;
 }
 
 Graph *Graph::New() {
