@@ -6,12 +6,18 @@ set(CMAKE_BUILD_TYPE Debug)
 
 aux_source_directory(src SOURCE_FILES)
 set(HEAD_FILES include/STLRender.h include/Tube.h include/CellPickerInteractorStyle.h util/VectorUtil.h util/LineUtil.h util/TubeUtil.h util/CircleUtil.h include/Graph.h include/Intersection.h)
+set(UI_FILES ui/MainWindow.ui ui/MainWindow.cpp ui/MainWindow.h ui/ui_MainWindow.h)
 
 # vtk
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
+# qt
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+find_package(Qt5Widgets REQUIRED)
 add_subdirectory(test)
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEAD_FILES})
-target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEAD_FILES} ${UI_FILES})
+target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt5::Widgets)

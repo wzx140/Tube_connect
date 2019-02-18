@@ -12,6 +12,7 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkAlgorithmOutput.h>
 #include <vector>
+#include <vtkGenericOpenGLRenderWindow.h>
 
 #include "Tube.h"
 
@@ -38,6 +39,8 @@ private:
     vtkSmartPointer<vtkRenderer> renderer;
 
     vtkSmartPointer<vtkActor> actor;
+
+    vtkSmartPointer<vtkGenericOpenGLRenderWindow> window;
 
 public:
     static STLRender *New();
@@ -90,6 +93,8 @@ public:
     vtkSmartPointer<vtkRenderer> getRenderer();
 
     vtkSmartPointer<vtkPolyData> getData();
+
+    const vtkSmartPointer<vtkGenericOpenGLRenderWindow > &getWindow() const;
 
 };
 

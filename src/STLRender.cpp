@@ -26,11 +26,11 @@ STLRender::STLRender() {
     this->renderer = vtkSmartPointer<vtkRenderer>::New();
     this->actor = vtkSmartPointer<vtkActor>::New();
 
-    auto window = vtkSmartPointer<vtkRenderWindow>::New();
-    window->AddRenderer(this->renderer);
-    auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
-    this->interactor->SetRenderWindow(window);
-    this->interactor->SetInteractorStyle(style);
+    this->window = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+    this->window->AddRenderer(this->renderer);
+//    auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+//    this->interactor->SetRenderWindow(window);
+//    this->interactor->SetInteractorStyle(style);
 }
 
 
@@ -145,4 +145,8 @@ vtkSmartPointer<vtkPolyData> STLRender::append(const vector<vtkSmartPointer<vtkP
     }
     append->Update();
     return append->GetOutput();
+}
+
+const vtkSmartPointer<vtkGenericOpenGLRenderWindow> &STLRender::getWindow() const {
+    return window;
 }

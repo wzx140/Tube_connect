@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>806</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Tube Connection</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QVTKOpenGLWidget" name="openGLWidget">
+      <property name="minimumSize">
+       <size>
+        <width>600</width>
+        <height>400</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTableWidget" name="tableWidget">
+        <row>
+         <property name="text">
+          <string>File</string>
+         </property>
+         <property name="toolTip">
+          <string>path of file</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Parameter1</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Parameter2</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Parameter3</string>
+         </property>
+        </row>
+        <column>
+         <property name="text">
+          <string notr="true">Value</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="3" column="0">
+         <widget class="QPushButton" name="importButton">
+          <property name="text">
+           <string>IMPORT</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="runButton">
+          <property name="text">
+           <string>RUN</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="clearButton">
+          <property name="text">
+           <string>CLEAR</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="exportButton">
+          <property name="text">
+           <string>EXPORT</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>806</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="fileMenu">
+    <property name="title">
+     <string>F&amp;ile</string>
+    </property>
+    <addaction name="importAction"/>
+    <addaction name="clearAction"/>
+    <addaction name="quitAction"/>
+   </widget>
+   <addaction name="fileMenu"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="importAction">
+   <property name="text">
+    <string>&amp;Import</string>
+   </property>
+   <property name="toolTip">
+    <string>import STL file</string>
+   </property>
+  </action>
+  <action name="clearAction">
+   <property name="text">
+    <string>&amp;Clear</string>
+   </property>
+   <property name="toolTip">
+    <string>clear image in display area</string>
+   </property>
+  </action>
+  <action name="quitAction">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKOpenGLWidget</class>
+   <extends>QOpenGLWidget</extends>
+   <header>QVTKOpenGLWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
