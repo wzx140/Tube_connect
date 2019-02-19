@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>806</width>
+    <width>1000</width>
     <height>600</height>
    </rect>
   </property>
@@ -29,9 +29,36 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QTableWidget" name="tableWidget">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="sortingEnabled">
+         <bool>false</bool>
+        </property>
+        <attribute name="horizontalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="horizontalHeaderDefaultSectionSize">
+         <number>290</number>
+        </attribute>
+        <attribute name="verticalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
         <row>
          <property name="text">
-          <string>File</string>
+          <string>file</string>
          </property>
          <property name="toolTip">
           <string>path of file</string>
@@ -39,17 +66,38 @@
         </row>
         <row>
          <property name="text">
-          <string>Parameter1</string>
+          <string>length</string>
+         </property>
+         <property name="toolTip">
+          <string>the length of each tube after connection</string>
          </property>
         </row>
         <row>
          <property name="text">
-          <string>Parameter2</string>
+          <string>radius</string>
+         </property>
+         <property name="toolTip">
+          <string>radius of each tube</string>
          </property>
         </row>
         <row>
          <property name="text">
-          <string>Parameter3</string>
+          <string>coefficient1</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>coefficient2</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>coefficient3</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>coefficient4</string>
          </property>
         </row>
         <column>
@@ -57,6 +105,59 @@
           <string notr="true">Value</string>
          </property>
         </column>
+        <item row="0" column="0">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item row="1" column="0">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item row="2" column="0">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item row="3" column="0">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item row="4" column="0">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item row="5" column="0">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+         </property>
+        </item>
+        <item row="6" column="0">
+         <property name="flags">
+          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
+         </property>
+        </item>
        </widget>
       </item>
       <item>
@@ -68,15 +169,11 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="runButton">
-          <property name="text">
-           <string>RUN</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="1">
          <widget class="QPushButton" name="clearButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>CLEAR</string>
           </property>
@@ -84,8 +181,21 @@
         </item>
         <item row="3" column="1">
          <widget class="QPushButton" name="exportButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>EXPORT</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="runButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>RUN</string>
           </property>
          </widget>
         </item>
@@ -95,47 +205,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>806</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="fileMenu">
-    <property name="title">
-     <string>F&amp;ile</string>
-    </property>
-    <addaction name="importAction"/>
-    <addaction name="clearAction"/>
-    <addaction name="quitAction"/>
-   </widget>
-   <addaction name="fileMenu"/>
-  </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="importAction">
-   <property name="text">
-    <string>&amp;Import</string>
-   </property>
-   <property name="toolTip">
-    <string>import STL file</string>
-   </property>
-  </action>
-  <action name="clearAction">
-   <property name="text">
-    <string>&amp;Clear</string>
-   </property>
-   <property name="toolTip">
-    <string>clear image in display area</string>
-   </property>
-  </action>
-  <action name="quitAction">
-   <property name="text">
-    <string>&amp;Quit</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -145,5 +215,76 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>importButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>import()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>658</x>
+     <y>551</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>402</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>runButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>run()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>658</x>
+     <y>511</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>402</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clearButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>779</x>
+     <y>510</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>800</x>
+     <y>108</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>exportButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>output()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>763</x>
+     <y>553</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>803</x>
+     <y>154</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>import()</slot>
+  <slot>run()</slot>
+  <slot>clear()</slot>
+  <slot>output()</slot>
+ </slots>
 </ui>

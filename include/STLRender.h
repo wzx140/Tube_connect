@@ -47,7 +47,7 @@ public:
 
     STLRender();
 
-    void setPath(const char *path);
+    void setPath(std::string path);
 
     /**
      * append the data set

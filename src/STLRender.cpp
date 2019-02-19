@@ -28,13 +28,10 @@ STLRender::STLRender() {
 
     this->window = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
     this->window->AddRenderer(this->renderer);
-//    auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
-//    this->interactor->SetRenderWindow(window);
-//    this->interactor->SetInteractorStyle(style);
 }
 
 
-void STLRender::setPath(const char *path) {
+void STLRender::setPath(std::string path) {
     STLRender::path = path;
 }
 
@@ -50,6 +47,11 @@ vtkSmartPointer<vtkRenderer> STLRender::getRenderer() {
 }
 
 void STLRender::start() {
+    auto window = vtkSmartPointer<vtkRenderWindow>::New();
+    window->AddRenderer(this->renderer);
+    auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+    this->interactor->SetRenderWindow(window);
+    this->interactor->SetInteractorStyle(style);
     this->interactor->Initialize();
     this->interactor->Start();
 }
