@@ -9,7 +9,9 @@ Import a stl file which contains many unconnected tubes, the program will connec
 * GTest(Optional)
 
 ### RELEASE
-- [v1.0](https://github.com/wzx140/Tube_connect/releases)
+- [v1.0](https://github.com/wzx140/Tube_connect/releases/tag/v1.0)
+<img src="img/1.png" width="350" height="300"/>
+<img src="img/2.png" width="350" height="300"/>
 
 ### BUILD
 #### LINUX
