@@ -8,6 +8,9 @@ Import a stl file which contains many unconnected tubes, the program will connec
 * QT5
 * GTest(Optional)
 
+### RELEASE
+- [v1.0](https://github.com/wzx140/Tube_connect/releases)
+
 ### BUILD
 #### LINUX
 - just run `cd tube_connect`, `cmake .`and `make` 
