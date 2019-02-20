@@ -6,11 +6,11 @@
 
 #include <vtkSTLReader.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderWindow.h>
 #include <vtkAxesActor.h>
 #include <vtkProperty.h>
 #include <vtkPolyDataConnectivityFilter.h>
 #include <vtkAppendPolyData.h>
+#include <vtkSTLWriter.h>
 
 using std::string;
 using std::vector;
@@ -151,4 +151,12 @@ vtkSmartPointer<vtkPolyData> STLRender::append(const vector<vtkSmartPointer<vtkP
 
 const vtkSmartPointer<vtkGenericOpenGLRenderWindow> &STLRender::getWindow() const {
     return window;
+}
+
+bool STLRender::output(std::string path) {
+    auto stlWriter = vtkSmartPointer<vtkSTLWriter>::New();
+    stlWriter->SetFileName(path.c_str());
+    stlWriter->SetInputData(this->data);
+    int status = stlWriter->Write();
+    return status != 0;
 }

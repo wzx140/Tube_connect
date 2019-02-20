@@ -23,6 +23,7 @@ MainWindow::MainWindow(vtkSmartPointer<STLRender> stlRender, QWidget *parent) : 
     perLabel->setText("made by WZX");
     perLabel->setOpenExternalLinks(true);
     ui->statusbar->addPermanentWidget(perLabel);
+    ui->statusbar->showMessage("null");
 
     this->stlRender = stlRender;
     ui->openGLWidget->SetRenderWindow(stlRender->getWindow());
@@ -33,8 +34,9 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::import() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("import STL file"), ".", tr("STLFile(*.stl *.STL)"));
-    if (!fileName.isNull() && (fileName.endsWith(".stl", Qt::CaseInsensitive))) {
+    QString fileName = QFileDialog::getOpenFileName(this, tr("import STL file"), "test/res",
+                                                    tr("STLFile(*.stl *.STL)"));
+    if (!fileName.isEmpty() && (fileName.endsWith(".stl", Qt::CaseInsensitive))) {
         this->stlRender->setPath(fileName.toStdString());
         this->stlRender->load();
         this->stlRender->setInputData(this->stlRender->getData(), 1);
@@ -52,8 +54,9 @@ void MainWindow::import() {
         ui->tableWidget->item(2, 0)->setText(QString::number(3));
         ui->tableWidget->item(3, 0)->setText(QString::number(1.5));
         ui->tableWidget->item(4, 0)->setText(QString::number(2));
-        ui->tableWidget->item(5, 0)->setText(QString::number(0.2));
+        ui->tableWidget->item(5, 0)->setText(QString::number(0.3));
         ui->tableWidget->item(6, 0)->setText(QString::number(20));
+        ui->statusbar->showMessage("loaded");
 
     }
 }
@@ -76,16 +79,17 @@ void MainWindow::run() {
 
 //    Check input value
     if (length <= 0) {
-        QMessageBox::critical(this, "Input value error!", "length < 0");
+        QMessageBox::critical(this, "Input value error!", "length error");
         return;
     } else if (radius <= 0) {
-        QMessageBox::critical(this, "Input value error!", "radius < 0");
+        QMessageBox::critical(this, "Input value error!", "radius error");
         return;
     } else if (coefficient1 <= 0 || coefficient2 <= 0 || coefficient3 <= 0 || coefficient4 <= 0) {
         QMessageBox::critical(this, "Input value error!", "coefficient error");
         return;
     }
 
+    ui->statusbar->showMessage("running");
 //    time of run
     clock_t startTime, endTime;
     startTime = clock();
@@ -120,10 +124,9 @@ void MainWindow::run() {
 
     dataList.emplace_back(graph->getOutput(0));
     stlRender->setInputData(dataList, 1);
-    ui->openGLWidget->update();
-
     endTime = clock();
     ui->statusbar->showMessage("Total time:" + QString::number((double) (endTime - startTime) / CLOCKS_PER_SEC) + "s");
+    ui->openGLWidget->update();
 }
 
 void MainWindow::clear() {
@@ -143,9 +146,23 @@ void MainWindow::clear() {
     ui->tableWidget->item(5, 0)->setText("");
     ui->tableWidget->item(6, 0)->setText("");
     ui->tableWidget->setEnabled(false);
+    ui->statusbar->showMessage("null");
 
 }
 
 void MainWindow::output() {
-
+    QString path = QFileDialog::getSaveFileName(this, "Save stl file", ".", "*.stl;");
+    bool flag = false;
+//    whether dir exist
+    if (QDir(QFileInfo(path).absolutePath()).exists() && !path.isEmpty()) {
+        if (!path.endsWith(".stl") && !path.endsWith(".STL")) {
+            path += ".stl";
+        }
+        flag = this->stlRender->output(path.toStdString());
+    }
+    if (flag) {
+        ui->statusbar->showMessage("save successful");
+    } else {
+        ui->statusbar->showMessage("save fail");
+    }
 }

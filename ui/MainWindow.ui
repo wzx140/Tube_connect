@@ -17,6 +17,12 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
      <widget class="QVTKOpenGLWidget" name="openGLWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>600</width>
@@ -30,13 +36,19 @@
       <item>
        <widget class="QTableWidget" name="tableWidget">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>380</width>
+          <height>481</height>
+         </size>
         </property>
         <property name="acceptDrops">
          <bool>false</bool>
@@ -169,13 +181,13 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="clearButton">
+        <item row="2" column="0">
+         <widget class="QPushButton" name="runButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>CLEAR</string>
+           <string>RUN</string>
           </property>
          </widget>
         </item>
@@ -189,13 +201,13 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="runButton">
+        <item row="2" column="1">
+         <widget class="QPushButton" name="clearButton">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>RUN</string>
+           <string>CLEAR</string>
           </property>
          </widget>
         </item>
@@ -255,8 +267,8 @@
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>779</x>
-     <y>510</y>
+     <x>991</x>
+     <y>528</y>
     </hint>
     <hint type="destinationlabel">
      <x>800</x>
@@ -271,8 +283,8 @@
    <slot>output()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>763</x>
-     <y>553</y>
+     <x>991</x>
+     <y>568</y>
     </hint>
     <hint type="destinationlabel">
      <x>803</x>
@@ -284,7 +296,7 @@
  <slots>
   <slot>import()</slot>
   <slot>run()</slot>
-  <slot>clear()</slot>
   <slot>output()</slot>
+  <slot>clear()</slot>
  </slots>
 </ui>

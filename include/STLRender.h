@@ -96,6 +96,13 @@ public:
 
     const vtkSmartPointer<vtkGenericOpenGLRenderWindow > &getWindow() const;
 
+    /**
+     * output the graph to stl file
+     * @param path
+     * @return
+     */
+    bool output(std::string path);
+
 };
 
 
