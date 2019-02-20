@@ -12,6 +12,7 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkAlgorithmOutput.h>
 #include <vector>
+#include <vtkGenericOpenGLRenderWindow.h>
 
 #include "Tube.h"
 
@@ -39,12 +40,14 @@ private:
 
     vtkSmartPointer<vtkActor> actor;
 
+    vtkSmartPointer<vtkGenericOpenGLRenderWindow> window;
+
 public:
     static STLRender *New();
 
     STLRender();
 
-    void setPath(const char *path);
+    void setPath(std::string path);
 
     /**
      * append the data set
@@ -90,6 +93,15 @@ public:
     vtkSmartPointer<vtkRenderer> getRenderer();
 
     vtkSmartPointer<vtkPolyData> getData();
+
+    const vtkSmartPointer<vtkGenericOpenGLRenderWindow > &getWindow() const;
+
+    /**
+     * output the graph to stl file
+     * @param path
+     * @return
+     */
+    bool output(std::string path);
 
 };
 

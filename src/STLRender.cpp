@@ -6,11 +6,11 @@
 
 #include <vtkSTLReader.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkRenderWindow.h>
 #include <vtkAxesActor.h>
 #include <vtkProperty.h>
 #include <vtkPolyDataConnectivityFilter.h>
 #include <vtkAppendPolyData.h>
+#include <vtkSTLWriter.h>
 
 using std::string;
 using std::vector;
@@ -26,15 +26,12 @@ STLRender::STLRender() {
     this->renderer = vtkSmartPointer<vtkRenderer>::New();
     this->actor = vtkSmartPointer<vtkActor>::New();
 
-    auto window = vtkSmartPointer<vtkRenderWindow>::New();
-    window->AddRenderer(this->renderer);
-    auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
-    this->interactor->SetRenderWindow(window);
-    this->interactor->SetInteractorStyle(style);
+    this->window = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+    this->window->AddRenderer(this->renderer);
 }
 
 
-void STLRender::setPath(const char *path) {
+void STLRender::setPath(std::string path) {
     STLRender::path = path;
 }
 
@@ -50,6 +47,11 @@ vtkSmartPointer<vtkRenderer> STLRender::getRenderer() {
 }
 
 void STLRender::start() {
+    auto window = vtkSmartPointer<vtkRenderWindow>::New();
+    window->AddRenderer(this->renderer);
+    auto style = vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+    this->interactor->SetRenderWindow(window);
+    this->interactor->SetInteractorStyle(style);
     this->interactor->Initialize();
     this->interactor->Start();
 }
@@ -145,4 +147,16 @@ vtkSmartPointer<vtkPolyData> STLRender::append(const vector<vtkSmartPointer<vtkP
     }
     append->Update();
     return append->GetOutput();
+}
+
+const vtkSmartPointer<vtkGenericOpenGLRenderWindow> &STLRender::getWindow() const {
+    return window;
+}
+
+bool STLRender::output(std::string path) {
+    auto stlWriter = vtkSmartPointer<vtkSTLWriter>::New();
+    stlWriter->SetFileName(path.c_str());
+    stlWriter->SetInputData(this->data);
+    int status = stlWriter->Write();
+    return status != 0;
 }
