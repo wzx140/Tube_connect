@@ -97,33 +97,3 @@ TEST_F(TubeTest, getStructureLineTest) {
 
 }
 
-/**
- * if you see a cylinder and its structure line, the test pass
- */
-TEST_F(TubeTest, update2Test) {
-
-    stlRender->setPath("res/test1.stl");
-    stlRender->load();
-    auto tubes = stlRender->getTubes();
-    auto tube = tubes[0];
-    array<double, 3> point{0, 0, 0};
-    array<double, 3> vector{0, 0, 1};
-    tube->update(vector, point, 10);
-
-    ::vector<vtkSmartPointer<vtkPolyData>> dataList;
-
-    auto points = tube->getEdgePoints();
-    for (int k = 0; k < points.size(); k++) {
-        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-        sphere->SetCenter(points.at(k).data());
-        sphere->SetRadius(0.5);
-        sphere->Update();
-        dataList.emplace_back(sphere->GetOutput());
-    }
-    dataList.emplace_back(stlRender->getData());
-
-    stlRender->setInputData(dataList, 1);
-    stlRender->axisOn();
-    stlRender->start();
-
-}

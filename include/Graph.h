@@ -52,9 +52,9 @@ private:
     double coefficient2;
 
     /**
-     * determine the resolution of angle
+     * determine the side of the tube
      */
-    double coefficient3;
+    int coefficient3;
 
 private:
 
@@ -94,7 +94,7 @@ public:
 
     void setCoefficient2(double coefficient2);
 
-    void setCoefficient3(double coefficient3);
+    void setCoefficient3(int coefficient3);
 
 };
 

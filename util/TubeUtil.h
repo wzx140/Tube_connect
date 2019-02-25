@@ -13,6 +13,7 @@
 #include <vector>
 #include <vtkLine.h>
 #include <vtkTubeFilter.h>
+#include <vtkCylinderSource.h>
 
 #include "LineUtil.h"
 
@@ -59,6 +60,19 @@ namespace TubeUtil {
      * @return
      */
     inline vtkSmartPointer<vtkPolyData> createTube(vector<array<array<double, 3>, 2>> &lines, double radius, int side);
+
+    /**
+     *  generate a cylinder with normal, center and side
+     *  @param normal: the normal of the cylinder
+     *  @param center: the center point of cylinder
+     *  @param radius
+     *  @param height
+     *  @param side: side of the cylinder
+     * @return
+     */
+    inline vtkSmartPointer<vtkPolyData>
+    createCylinder(array<double, 3> &normal, array<double, 3> &center, double radius, double height,
+                   int side);
 
 }
 
@@ -180,6 +194,34 @@ namespace TubeUtil {
         edgePoints[2] = edgePoint3;
         return edgePoints;
 
+    }
+
+    vtkSmartPointer<vtkPolyData>
+    createCylinder(array<double, 3> &normal, array<double, 3> &center, double radius, double height,
+                   int side) {
+        VectorUtil::regularize(normal);
+        auto data = vtkSmartPointer<vtkCylinderSource>::New();
+        auto transform = vtkSmartPointer<vtkTransform>::New();
+        auto filter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+
+        data->SetRadius(radius);
+        data->SetResolution(side);
+        data->SetHeight(height);
+        data->Update();
+
+//      rotate and translation
+        double theta = vtkMath::DegreesFromRadians(acos(vtkMath::Dot(normal.data(), LineUtil::yAxis)));
+        array<double, 3> axis = {0};
+        vtkMath::Cross(normal.data(), LineUtil::yAxis, axis.data());
+        VectorUtil::reverse(axis);
+        transform->PostMultiply();
+        transform->RotateWXYZ(theta, axis.data());
+        transform->Translate(center.data());
+        filter->SetTransform(transform);
+        filter->SetInputConnection(data->GetOutputPort());
+        filter->Update();
+
+        return filter->GetOutput();
     }
 
 
