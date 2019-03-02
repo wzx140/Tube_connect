@@ -41,4 +41,8 @@ If you want to run the test, you should build the source in test mode with `cmak
 ### ATTENTION
 1. The import file must be stl format and contain only tubes that are not connected
 2. The radius of each tube must be equal 
-3. The connection only create in the intersection of the center line of the tubes 
+3. The connection only create in the intersection of the center line of the tubes
+
+### REFERENCE
+- [vtkbool](https://github.com/zippy84/vtkbool) : A new boolean operations filter for VTK
+    - remove python wrapper part

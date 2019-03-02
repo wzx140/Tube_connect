@@ -8,6 +8,8 @@
 #include "../../include/Graph.h"
 
 using std::vector;
+// vtkbool
+int Point::_tag = 0;
 
 class TubeUtilTest : public ::testing::Test {
 
@@ -22,55 +24,24 @@ protected:
     }
 };
 
-TEST_F(TubeUtilTest, connectTest) {
-    auto tubes = stlRender->getTubes();
 
-    auto graph = vtkSmartPointer<Graph>::New();
-    graph->setLength(200);
-    graph->setRadius(5);
-    graph->setCoefficient3(0.05);
-    graph->create(tubes);
-    auto interSection = graph->getIntersections()[0];
-    auto tube1 = interSection->getTubes()[0];
-    auto tube2 = interSection->getTubes()[2];
+TEST_F(TubeUtilTest, connetTest) {
+    auto l1 = vtkSmartPointer<vtkLineSource>::New();
+    auto l2 = vtkSmartPointer<vtkLineSource>::New();
 
-    vector<vtkSmartPointer<vtkPolyData>> dataList;
-    auto edge1 = tube1->getEdgePoints();
-    auto edge2 = tube2->getEdgePoints();
+    array<double, 3> point1{64.926935789806464, 7.1501248777546049, -0.00025614178654999461};
+    array<double, 3> point2{50.395716061874381, -7.1503924093412774, -0.00017248867591595495};
+    array<double, 3> point3{47.467441221438307, -0.00013376573518674223, -0.00020437462342637406};
+    array<double, 3> point4{67.855210630242539, -0.00013376585148573366, -0.00022425583903957553};
 
-    array<double, 3> center{0, 0, 0};
+    auto c1 = TubeUtil::createTube(point1, point2, 3, 20);
+    auto c2 = TubeUtil::createTube(point3, point4, 3, 20);
 
-    auto data = TubeUtil::connect(edge1, tube1->getNormal(), edge2, tube2->getNormal(), center, 2, 5);
-    dataList.insert(dataList.end(), data.begin(), data.end());
+    vector<vtkSmartPointer<vtkPolyData>> data;
+    data.emplace_back(c1);
+    data.emplace_back(c2);
 
-    for (int i = 0; i < edge1.size(); i++) {
-        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-        sphere->SetCenter(edge1[i].data());
-        sphere->SetRadius(0.2);
-        sphere->Update();
-        dataList.emplace_back(sphere->GetOutput());
-    }
-    for (int i = 0; i < edge2.size(); i++) {
-        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-        sphere->SetCenter(edge2[i].data());
-        sphere->SetRadius(0.2);
-        sphere->Update();
-        dataList.emplace_back(sphere->GetOutput());
-    }
-
-    this->stlRender->setInputData(dataList, 1);
-    this->stlRender->axisOn();
-    this->stlRender->start();
-}
-
-TEST_F(TubeUtilTest, createTubeTest) {
-    array<array<double, 3>, 2> line1 = {{{0, 0, 0}, {10, 0, 0}}};
-    array<array<double, 3>, 2> line2 = {{{0, 0, 0}, {0, 10, 0}}};
-    vector<array<array<double, 3>, 2>> lines;
-    lines.emplace_back(line1);
-    lines.emplace_back(line2);
-    auto graph = TubeUtil::createTube(lines, 2, 20);
-
+    auto graph = TubeUtil::connect(data);
 
     this->stlRender->setInputData(graph, 1);
     this->stlRender->axisOn();

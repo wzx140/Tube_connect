@@ -52,13 +52,12 @@ private:
     double coefficient2;
 
     /**
-     * determine the resolution of angle
+     * determine the side of the tube
      */
-    double coefficient3;
-
-private:
+    int coefficient3;
 
     vector<vtkSmartPointer<vtkPolyData>> dataList;
+
 public:
     Graph();
 
@@ -75,12 +74,7 @@ public:
      */
     void update();
 
-    /**
-     * 0->tubes , others->connections
-     * @param i
-     * @return
-     */
-    vtkSmartPointer<vtkPolyData> getOutput(int i);
+    vector<vtkSmartPointer<vtkPolyData>> getOutput();
 
     vector<array<array<double, 3>, 2>> &getLines();
 
@@ -94,7 +88,7 @@ public:
 
     void setCoefficient2(double coefficient2);
 
-    void setCoefficient3(double coefficient3);
+    void setCoefficient3(int coefficient3);
 
 };
 

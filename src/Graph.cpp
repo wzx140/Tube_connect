@@ -3,11 +3,10 @@
 //
 
 #include <cmath>
-#include <vtkPolygon.h>
+#include <vtkBooleanOperationPolyDataFilter.h>
 
 #include "../util/TubeUtil.h"
 #include "../include/Graph.h"
-#include "../include/STLRender.h"
 
 using std::pair;
 using std::sort;
@@ -17,7 +16,7 @@ Graph::Graph() {
     this->radius = 3;
     this->coefficient1 = 1.5;
     this->coefficient2 = 2;
-    this->coefficient3 = 0.2;
+    this->coefficient3 = 30;
 }
 
 Graph *Graph::New() {
@@ -128,22 +127,19 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
             double room = pow((180 - minAngle) / 90, this->coefficient2) * this->radius * this->coefficient1;
 
-            auto tube1 = vtkSmartPointer<Tube>::New();
-            auto tube2 = vtkSmartPointer<Tube>::New();
-            int resolution = static_cast<int>(180 * this->coefficient3 * (info.size() - 1)) + 1;
-            tube1->setResolution(resolution);
-            tube2->setResolution(resolution);
+            auto tube = vtkSmartPointer<Tube>::New();
 
             auto lineCut = LineUtil::cut(lines.at(info.at(j).first).at(0), lines.at(info.at(j).first).at(1), point,
                                          room);
-            auto normal1 = VectorUtil::getVector(lineCut.at(1), point);
-            auto normal2 = VectorUtil::getVector(lineCut.at(3), point);
-            tube1->update(normal1, lineCut.at(1), this->radius);
-            tube2->update(normal2, lineCut.at(3), this->radius);
+            double height = LineUtil::getLength(lineCut.at(1), point) * 2;
+            auto normal = VectorUtil::getVector(lineCut.at(1), point);
+
+            tube->setStPoint(lineCut.at(1));
+            tube->setEndPoint(lineCut.at(3));
+            tube->setNormal(normal);
 
             info.at(j).second = room;
-            intersections.at(i)->addTube(tube1);
-            intersections.at(i)->addTube(tube2);
+            intersections.at(i)->addTube(tube);
         }
     }
 
@@ -164,44 +160,23 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
 }
 
-bool cmp(pair<array<int, 2>, double> &T1, pair<array<int, 2>, double> &T2);
 
 void Graph::update() {
-    this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, 20));
+    this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, this->coefficient3));
 
     for (int i = 0; i < this->intersections.size(); i++) {
-        vector<vtkSmartPointer<vtkPolyData>> connection;
-        //sort by angle
         auto tubes = this->intersections.at(i)->getTubes();
-        vector<pair<array<int, 2>, double>> tubePairs;
-        for (int j = 0; j < tubes.size(); j++) {
-            for (int k = j + 1; k < tubes.size(); k++) {
-                auto angle = VectorUtil::getAngle(tubes.at(j)->getNormal(), tubes.at(k)->getNormal());
-                tubePairs.emplace_back(pair<array<int, 2>, double>(array<int, 2>{j, k}, angle));
-            }
+        vector<vtkSmartPointer<vtkPolyData>> tubeData;
+        for (const auto &tube : tubes) {
+            tubeData.emplace_back(
+                    TubeUtil::createTube(tube->getStPoint(), tube->getEndPoint(), this->radius, this->coefficient3));
         }
-        sort(tubePairs.begin(), tubePairs.end(), cmp);
-
-        //connect
-        for (int j = 0; j < tubePairs.size(); j++) {
-
-            double angle = tubePairs.at(j).second;
-
-            int resolution = static_cast<int>((180 - angle) * this->coefficient3);
-
-            int id1 = tubePairs.at(j).first[0];
-            int id2 = tubePairs.at(j).first[1];
-
-            auto data = TubeUtil::connect(tubes.at(id1)->getEdgePoints(), tubes.at(id1)->getNormal(),
-                                          tubes.at(id2)->getEdgePoints(), tubes.at(id2)->getNormal(),
-                                          this->intersections.at(i)->getPoint(), resolution, 0);
-            connection.insert(connection.end(), data.begin(), data.end());
-        }
-
-        this->dataList.emplace_back(STLRender::append(connection));
+        auto data = TubeUtil::connect(tubeData);
+        this->dataList.emplace_back(data);
     }
 
 }
+
 
 vector<array<array<double, 3>, 2>> &Graph::getLines() {
     return lines;
@@ -227,20 +202,10 @@ void Graph::setCoefficient2(double coefficient2) {
     Graph::coefficient2 = coefficient2;
 }
 
-vtkSmartPointer<vtkPolyData> Graph::getOutput(int i) {
-    return dataList[i];
+vector<vtkSmartPointer<vtkPolyData>> Graph::getOutput() {
+    return dataList;
 }
 
-void Graph::setCoefficient3(double coefficient3) {
+void Graph::setCoefficient3(int coefficient3) {
     Graph::coefficient3 = coefficient3;
-}
-
-/**
- * used to sort
- * @return
- */
-bool cmp(pair<array<int, 2>, double> &T1, pair<array<int, 2>, double> &T2) {
-    double angle1 = T1.second;
-    double angle2 = T2.second;
-    return angle1 < angle2;
 }

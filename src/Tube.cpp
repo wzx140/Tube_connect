@@ -16,7 +16,6 @@ Tube *Tube::New() {
 
 Tube::Tube() {
     this->data = vtkSmartPointer<vtkPolyData>::New();
-    this->resolution = 50;
     this->normal = {0};
 }
 
@@ -81,20 +80,12 @@ bool Tube::hasPoint(array<double, 3> point) {
     return false;
 }
 
-vector<array<double, 3>> &Tube::getEdgePoints() {
-    return edgePoints;
-}
-
 array<double, 3> &Tube::getNormal() {
     return normal;
 }
 
 const vector<array<double, 3>> &Tube::getPoints() const {
     return points;
-}
-
-void Tube::setResolution(int resolution) {
-    Tube::resolution = resolution;
 }
 
 array<array<double, 3>, 2> Tube::getStructureLine() {
@@ -121,9 +112,24 @@ array<array<double, 3>, 2> Tube::getStructureLine() {
     return line;
 }
 
-void Tube::update(array<double, 3> &normal, array<double, 3> &center, double radius) {
+void Tube::setNormal(array<double, 3> &normal) {
     VectorUtil::regularize(normal);
     this->normal = normal;
-    this->edgePoints = CircleUtil::getCircle(center, radius, this->normal, this->resolution);
+}
+
+array<double, 3> &Tube::getStPoint() {
+    return stPoint;
+}
+
+void Tube::setStPoint(array<double, 3> &stPoint) {
+    Tube::stPoint = stPoint;
+}
+
+array<double, 3> &Tube::getEndPoint() {
+    return endPoint;
+}
+
+void Tube::setEndPoint(array<double, 3> &endPoint) {
+    Tube::endPoint = endPoint;
 }
 

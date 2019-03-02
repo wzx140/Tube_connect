@@ -22,82 +22,16 @@ protected:
     }
 };
 
-TEST_F(GraphTest, createTest) {
-    this->stlRender->setPath("res/test3.stl");
-    stlRender->load();
-    auto tubes = this->stlRender->getTubes();
-    graph->setLength(300);
-    graph->setRadius(5);
-    graph->create(tubes);
-    auto lines = graph->getLines();
-
-    auto data = vtkSmartPointer<vtkPolyData>::New();
-    auto points = vtkSmartPointer<vtkPoints>::New();
-    auto lines_ = vtkSmartPointer<vtkCellArray>::New();
-    vector<vtkSmartPointer<vtkPolyData>> dataList;
-
-    for (int i = 0; i < lines.size(); i++) {
-        auto line = vtkSmartPointer<vtkLine>::New();
-
-        points->InsertNextPoint(lines.at(i).at(0).data());
-        points->InsertNextPoint(lines.at(i).at(1).data());
-
-        line->GetPointIds()->SetId(0, i * 2);
-        line->GetPointIds()->SetId(1, i * 2 + 1);
-
-        lines_->InsertNextCell(line);
-    }
-
-    data->SetLines(lines_);
-    data->SetPoints(points);
-    dataList.emplace_back(data);
-
-    auto source = this->graph->getIntersections();
-    for (int i = 0; i < source.size(); i++) {
-        auto point = source[i]->getPoint();
-        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-        sphere->SetCenter(point.data());
-        sphere->SetRadius(2);
-        sphere->Update();
-        dataList.emplace_back(sphere->GetOutput());
-
-        auto tubes = source[i]->getTubes();
-
-        for (int j = 0; j < tubes.size(); j++) {
-            auto points = tubes.at(j)->getEdgePoints();
-            for (int k = 0; k < points.size(); k++) {
-                auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-                sphere->SetCenter(points.at(k).data());
-                sphere->SetRadius(0.1);
-                sphere->Update();
-                dataList.emplace_back(sphere->GetOutput());
-            }
-        }
-    }
-
-    stlRender->setInputData(dataList, 1);
-    stlRender->axisOn();
-    stlRender->start();
-
-}
-
 TEST_F(GraphTest, updateTest) {
     this->stlRender->setPath("res/test3.stl");
     stlRender->load();
     auto tubes = this->stlRender->getTubes();
     graph->setLength(250);
     graph->setRadius(3);
-    graph->setCoefficient3(0.2);
+//    graph->setCoefficient3(30);
     graph->create(tubes);
     graph->update();
-    vector<vtkSmartPointer<vtkPolyData>> dataList;
-    for (int i = 1; i < graph->getIntersections().size() + 1; i++) {
-        dataList.emplace_back(graph->getOutput(i));
-    }
-    dataList.emplace_back(graph->getOutput(0));
-
-
-    stlRender->setInputData(dataList, 1);
+    stlRender->setInputData(graph->getOutput(), 1);
 //    stlRender->axisOn();
     stlRender->start();
 }

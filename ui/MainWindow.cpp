@@ -3,7 +3,6 @@
 //
 #include <vtkSurfaceReconstructionFilter.h>
 #include <vtkContourFilter.h>
-#include <vtkReverseSense.h>
 #include <qstring.h>
 #include <qfiledialog.h>
 #include <qlabel.h>
@@ -54,8 +53,7 @@ void MainWindow::import() {
         ui->tableWidget->item(2, 0)->setText(QString::number(3));
         ui->tableWidget->item(3, 0)->setText(QString::number(1.5));
         ui->tableWidget->item(4, 0)->setText(QString::number(2));
-        ui->tableWidget->item(5, 0)->setText(QString::number(0.3));
-        ui->tableWidget->item(6, 0)->setText(QString::number(20));
+        ui->tableWidget->item(5, 0)->setText(QString::number(30));
         ui->statusbar->showMessage("loaded");
 
     }
@@ -68,14 +66,12 @@ void MainWindow::run() {
     auto coefficient1Str = ui->tableWidget->item(3, 0)->text();
     auto coefficient2Str = ui->tableWidget->item(4, 0)->text();
     auto coefficient3Str = ui->tableWidget->item(5, 0)->text();
-    auto coefficient4Str = ui->tableWidget->item(6, 0)->text();
 
     double length = lengthStr.toDouble();
     double radius = radiusStr.toDouble();
     double coefficient1 = coefficient1Str.toDouble();
     double coefficient2 = coefficient2Str.toDouble();
-    double coefficient3 = coefficient3Str.toDouble();
-    int coefficient4 = coefficient4Str.toInt();
+    int coefficient3 = coefficient3Str.toInt();
 
 //    Check input value
     if (length <= 0) {
@@ -84,7 +80,7 @@ void MainWindow::run() {
     } else if (radius <= 0) {
         QMessageBox::critical(this, "Input value error!", "radius error");
         return;
-    } else if (coefficient1 <= 0 || coefficient2 <= 0 || coefficient3 <= 0 || coefficient4 <= 0) {
+    } else if (coefficient1 <= 0 || coefficient2 <= 0 || coefficient3 <= 0) {
         QMessageBox::critical(this, "Input value error!", "coefficient error");
         return;
     }
@@ -104,26 +100,7 @@ void MainWindow::run() {
     graph->create(tubes);
     graph->update();
 
-    vector<vtkSmartPointer<vtkPolyData>> dataList;
-    for (int i = 1; i < graph->getIntersections().size() + 1; i++) {
-        auto surf = vtkSmartPointer<vtkSurfaceReconstructionFilter>::New();
-        surf->SetInputData(graph->getOutput(i));
-        // the bigger value, the more time
-        surf->SetNeighborhoodSize(coefficient4);
-        surf->Update();
-        auto contour = vtkSmartPointer<vtkContourFilter>::New();
-        contour->SetInputConnection(surf->GetOutputPort());
-        contour->SetValue(0, 0.0);
-        auto reverse = vtkSmartPointer<vtkReverseSense>::New();
-        reverse->SetInputConnection(contour->GetOutputPort());
-        reverse->ReverseCellsOn();
-        reverse->ReverseNormalsOn();
-        reverse->Update();
-        dataList.emplace_back(reverse->GetOutput());
-    }
-
-    dataList.emplace_back(graph->getOutput(0));
-    stlRender->setInputData(dataList, 1);
+    stlRender->setInputData(graph->getOutput(), 1);
     endTime = clock();
     ui->statusbar->showMessage("Total time:" + QString::number((double) (endTime - startTime) / CLOCKS_PER_SEC) + "s");
     ui->openGLWidget->update();
@@ -144,7 +121,6 @@ void MainWindow::clear() {
     ui->tableWidget->item(3, 0)->setText("");
     ui->tableWidget->item(4, 0)->setText("");
     ui->tableWidget->item(5, 0)->setText("");
-    ui->tableWidget->item(6, 0)->setText("");
     ui->tableWidget->setEnabled(false);
     ui->statusbar->showMessage("null");
 
