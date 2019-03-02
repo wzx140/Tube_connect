@@ -13,6 +13,9 @@ Import a stl file which contains many unconnected tubes, the program will connec
 <img src="img/1.png" width="350" height="300"/>
 <img src="img/2.png" width="350" height="300"/>
 
+- [v2.0](https://github.com/wzx140/Tube_connect/releases/tag/v2.0)
+  - more stable and faster
+
 ### BUILD
 #### LINUX
 - just run `cd tube_connect`, `cmake .`and `make` 
