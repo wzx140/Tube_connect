@@ -107,11 +107,6 @@
           <string>coefficient3</string>
          </property>
         </row>
-        <row>
-         <property name="text">
-          <string>coefficient4</string>
-         </property>
-        </row>
         <column>
          <property name="text">
           <string notr="true">Value</string>
@@ -161,11 +156,6 @@
          <property name="text">
           <string/>
          </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item row="6" column="0">
          <property name="flags">
           <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
          </property>

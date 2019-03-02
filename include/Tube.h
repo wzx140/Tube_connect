@@ -36,9 +36,14 @@ private:
     vector<array<double, 3>> points;
 
     /**
-     * the height of the tube
+     * start center point of the tube
      */
-    double height;
+    array<double, 3> stPoint;
+
+    /**
+     * end center point of the tube
+     */
+    array<double, 3> endPoint;
 
 public:
     Tube();
@@ -68,9 +73,13 @@ public:
 
     void setNormal(array<double, 3> &normal);
 
-    double getHeight();
+    array<double, 3> &getStPoint();
 
-    void setHeight(double height);
+    void setStPoint(array<double, 3> &stPoint);
+
+    array<double, 3> &getEndPoint();
+
+    void setEndPoint(array<double, 3> &endPoint);
 
 };
 

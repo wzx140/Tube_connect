@@ -11,7 +11,27 @@ set(HEAD_FILES include/STLRender.h include/Tube.h include/CellPickerInteractorSt
 set(UI_FILES ui/MainWindow.ui ui/MainWindow.cpp ui/MainWindow.h ui/ui_MainWindow.h)
 
 # vtk
-find_package(VTK REQUIRED)
+find_package(VTK COMPONENTS
+        vtkCommonComputationalGeometry
+        vtkCommonCore
+        vtkCommonDataModel
+        vtkCommonExecutionModel
+        vtkCommonMath
+        vtkCommonTransforms
+        vtkFiltersCore
+        vtkFiltersExtraction
+        vtkFiltersGeneral
+        vtkFiltersModeling
+        vtkFiltersSources
+        vtkGUISupportQt
+        vtkIOGeometry
+        vtkIOLegacy
+        vtkImagingHybrid
+        vtkInteractionStyle
+        vtkRenderingAnnotation
+        vtkRenderingCore
+        vtkRenderingFreeType
+        vtkRenderingOpenGL2 REQUIRED)
 include(${VTK_USE_FILE})
 
 # qt
@@ -20,10 +40,16 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 find_package(Qt5Widgets REQUIRED)
 
+# vtkbool
+include_directories(vtkbool-2.5.2)
+add_subdirectory(vtkbool-2.5.2)
+include_directories(vtkbool-2.5.2/libs/vp)
+
 if (${BUILD_TEST})
     message("Build test")
     add_subdirectory(test)
 endif ()
 
+
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEAD_FILES} ${UI_FILES})
-target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt5::Widgets vtkbool)

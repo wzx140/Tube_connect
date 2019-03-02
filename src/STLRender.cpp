@@ -107,6 +107,7 @@ void STLRender::setInputData(vtkSmartPointer<vtkPolyData> data, double opacity) 
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     this->data = data;
     mapper->SetInputData(data);
+    mapper->ScalarVisibilityOff();
     mapper->Update();
 
     auto actor = vtkSmartPointer<vtkActor>::New();
@@ -130,6 +131,7 @@ void STLRender::setInputData(vector<vtkSmartPointer<vtkPolyData>> dataList, doub
 
     auto mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputConnection(append->GetOutputPort());
+    mapper->ScalarVisibilityOff();
 
     auto actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);

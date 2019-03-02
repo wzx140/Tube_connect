@@ -28,16 +28,10 @@ TEST_F(GraphTest, updateTest) {
     auto tubes = this->stlRender->getTubes();
     graph->setLength(250);
     graph->setRadius(3);
+//    graph->setCoefficient3(30);
     graph->create(tubes);
     graph->update();
-    vector<vtkSmartPointer<vtkPolyData>> dataList;
-    for (int i = 1; i < graph->getIntersections().size() + 1; i++) {
-        dataList.emplace_back(graph->getOutput(i));
-    }
-    dataList.emplace_back(graph->getOutput(0));
-
-
-    stlRender->setInputData(dataList, 1);
+    stlRender->setInputData(graph->getOutput(), 1);
 //    stlRender->axisOn();
     stlRender->start();
 }

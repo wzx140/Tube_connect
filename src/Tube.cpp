@@ -117,10 +117,19 @@ void Tube::setNormal(array<double, 3> &normal) {
     this->normal = normal;
 }
 
-double Tube::getHeight(){
-    return height;
+array<double, 3> &Tube::getStPoint() {
+    return stPoint;
 }
 
-void Tube::setHeight(double height) {
-    Tube::height = height;
+void Tube::setStPoint(array<double, 3> &stPoint) {
+    Tube::stPoint = stPoint;
 }
+
+array<double, 3> &Tube::getEndPoint() {
+    return endPoint;
+}
+
+void Tube::setEndPoint(array<double, 3> &endPoint) {
+    Tube::endPoint = endPoint;
+}
+

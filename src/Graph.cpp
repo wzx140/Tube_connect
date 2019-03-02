@@ -3,11 +3,10 @@
 //
 
 #include <cmath>
-#include <vtkPolygon.h>
+#include <vtkBooleanOperationPolyDataFilter.h>
 
 #include "../util/TubeUtil.h"
 #include "../include/Graph.h"
-#include "../include/STLRender.h"
 
 using std::pair;
 using std::sort;
@@ -17,7 +16,7 @@ Graph::Graph() {
     this->radius = 3;
     this->coefficient1 = 1.5;
     this->coefficient2 = 2;
-    this->coefficient3 = 20;
+    this->coefficient3 = 30;
 }
 
 Graph *Graph::New() {
@@ -134,8 +133,10 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
                                          room);
             double height = LineUtil::getLength(lineCut.at(1), point) * 2;
             auto normal = VectorUtil::getVector(lineCut.at(1), point);
+
+            tube->setStPoint(lineCut.at(1));
+            tube->setEndPoint(lineCut.at(3));
             tube->setNormal(normal);
-            tube->setHeight(height);
 
             info.at(j).second = room;
             intersections.at(i)->addTube(tube);
@@ -165,15 +166,13 @@ void Graph::update() {
 
     for (int i = 0; i < this->intersections.size(); i++) {
         auto tubes = this->intersections.at(i)->getTubes();
-        auto point = this->intersections.at(i)->getPoint();
-        vector<vtkSmartPointer<vtkPolyData>> connection;
+        vector<vtkSmartPointer<vtkPolyData>> tubeData;
         for (const auto &tube : tubes) {
-            auto data = TubeUtil::createCylinder(tube->getNormal(), point, this->radius, tube->getHeight(),
-                                                 this->coefficient3);
-            connection.emplace_back(data);
+            tubeData.emplace_back(
+                    TubeUtil::createTube(tube->getStPoint(), tube->getEndPoint(), this->radius, this->coefficient3));
         }
-        this->dataList.emplace_back(STLRender::append(connection));
-        //todo: get surface
+        auto data = TubeUtil::connect(tubeData);
+        this->dataList.emplace_back(data);
     }
 
 }
@@ -203,8 +202,8 @@ void Graph::setCoefficient2(double coefficient2) {
     Graph::coefficient2 = coefficient2;
 }
 
-vtkSmartPointer<vtkPolyData> Graph::getOutput(int i) {
-    return dataList[i];
+vector<vtkSmartPointer<vtkPolyData>> Graph::getOutput() {
+    return dataList;
 }
 
 void Graph::setCoefficient3(int coefficient3) {

@@ -56,9 +56,8 @@ private:
      */
     int coefficient3;
 
-private:
-
     vector<vtkSmartPointer<vtkPolyData>> dataList;
+
 public:
     Graph();
 
@@ -75,12 +74,7 @@ public:
      */
     void update();
 
-    /**
-     * 0->tubes , others->connections
-     * @param i
-     * @return
-     */
-    vtkSmartPointer<vtkPolyData> getOutput(int i);
+    vector<vtkSmartPointer<vtkPolyData>> getOutput();
 
     vector<array<array<double, 3>, 2>> &getLines();
 
