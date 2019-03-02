@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(tube_connect)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 option(BUILD_TEST "whether to build test" OFF)
 
@@ -50,6 +50,9 @@ if (${BUILD_TEST})
     add_subdirectory(test)
 endif ()
 
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEAD_FILES} ${UI_FILES})
+IF (WIN32)
+	add_executable(${PROJECT_NAME} WIN32 ${SOURCE_FILES} ${HEAD_FILES} ${UI_FILES})
+ELSE ()
+	add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEAD_FILES} ${UI_FILES})
+ENDIF ()
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt5::Widgets vtkbool)
