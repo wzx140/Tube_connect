@@ -26,20 +26,24 @@ protected:
 
 
 TEST_F(TubeUtilTest, connetTest) {
-    auto l1 = vtkSmartPointer<vtkLineSource>::New();
-    auto l2 = vtkSmartPointer<vtkLineSource>::New();
 
-    array<double, 3> point1{64.926935789806464, 7.1501248777546049, -0.00025614178654999461};
-    array<double, 3> point2{50.395716061874381, -7.1503924093412774, -0.00017248867591595495};
-    array<double, 3> point3{47.467441221438307, -0.00013376573518674223, -0.00020437462342637406};
-    array<double, 3> point4{67.855210630242539, -0.00013376585148573366, -0.00022425583903957553};
+    array<double, 3> point1{0.001,10.122,100.000};
+    array<double, 3> point2{-0.000,-10.128,100.000};
+
+    array<double, 3> point3{10.125,-0.003,99.995};
+    array<double, 3> point4{-10.124,-0.002,100.005};
+
+    array<double, 3> point5{7.160,7.157,100.000};
+    array<double, 3> point6{-7.159,-7.162,100.000};
 
     auto c1 = TubeUtil::createTube(point1, point2, 3, 20);
     auto c2 = TubeUtil::createTube(point3, point4, 3, 20);
+    auto c3 = TubeUtil::createTube(point5, point6, 3, 20);
 
     vector<vtkSmartPointer<vtkPolyData>> data;
     data.emplace_back(c1);
     data.emplace_back(c2);
+    data.emplace_back(c3);
 
     auto graph = TubeUtil::connect(data);
 
