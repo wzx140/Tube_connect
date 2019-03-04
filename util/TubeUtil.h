@@ -41,15 +41,6 @@ namespace TubeUtil {
     inline array<array<double, 3>, 3> getEdgePoint(vector<array<double, 3>> &points, array<double, 3> &normal);
 
     /**
-     * get the start point pair between two edge. In other words, it is the point pair in the shortest distance
-     * @param edge1
-     * @param edge2
-     * @return the index of two points
-     */
-    inline array<int, 2>
-    getShortPointPair(vector<array<double, 3>> &edge1, vector<array<double, 3>> &edge2);
-
-    /**
      *  generate a tube around each input line
      *  @param lines: include lots of lines
      *  @param radius
@@ -88,27 +79,7 @@ namespace TubeUtil {
             result = booleanFilter->GetOutput();
 
         }
-        normalFilter->SetInputData(result);
-        normalFilter->Update();
-        return normalFilter->GetOutput();
-    }
-
-    array<int, 2>
-    getShortPointPair(vector<array<double, 3>> &edge1, vector<array<double, 3>> &edge2) {
-        double distance = DBL_MAX;
-        array<int, 2> index{};
-
-        for (int i = 0; i < edge1.size(); i++) {
-            for (int j = 0; j < edge2.size(); j++) {
-                double length = LineUtil::getLength(edge1[i], edge2[j]);
-                if (length < distance) {
-                    distance = length;
-                    index[0] = i;
-                    index[1] = j;
-                }
-            }
-        }
-        return index;
+        return result;
     }
 
     vtkSmartPointer<vtkPolyData> createTube(vector<array<array<double, 3>, 2>> &lines, double radius, int side) {
@@ -148,15 +119,6 @@ namespace TubeUtil {
         filter->SetNumberOfSides(side);
         filter->SetInputConnection(lineSource->GetOutputPort());
         filter->Update();
-
-//        auto triFilter = vtkSmartPointer<vtkTriangleFilter>::New();
-//        triFilter->SetInputConnection(filter->GetOutputPort());
-//
-//        auto subFilter = vtkSmartPointer<vtkLoopSubdivisionFilter>::New();
-//        subFilter->SetNumberOfSubdivisions(param);
-//        subFilter->SetInputConnection(triFilter->GetOutputPort());
-//
-//        subFilter->Update();
 
         return filter->GetOutput();
     }

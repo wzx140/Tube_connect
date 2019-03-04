@@ -42,12 +42,12 @@ private:
     double length;
 
     /**
-     * determine the room in intersections
+     * determine the room in intersections like weight
      */
     double coefficient1;
 
     /**
-     * determine the room in intersections
+     * determine the room in intersections like bias
      */
     double coefficient2;
 

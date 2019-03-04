@@ -14,7 +14,7 @@ using std::sort;
 Graph::Graph() {
     this->length = 100;
     this->radius = 3;
-    this->coefficient1 = 1.5;
+    this->coefficient1 = 2;
     this->coefficient2 = 2;
     this->coefficient3 = 30;
 }
@@ -43,27 +43,31 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
                 double min = length1;
                 array<double, 3> stPoint = lines.at(i)[1];
                 array<double, 3> endPoint = lines.at(j)[1];
-                if (length2 < min && length2 <= this->length) {
+                if (length2 < min) {
                     min = length2;
                     stPoint = lines.at(i)[1];
                     endPoint = lines.at(j)[0];
-                } else if (length3 < min && length3 <= this->length) {
+                }
+                if (length3 < min) {
                     min = length3;
                     stPoint = lines.at(i)[0];
                     endPoint = lines.at(j)[1];
-                } else if (length4 < min && length4 <= this->length) {
+                }
+                if (length4 < min) {
                     min = length4;
                     stPoint = lines.at(i)[0];
                     endPoint = lines.at(j)[0];
                 }
 
-                lines.erase(lines.begin() + i);
-                lines.erase(lines.begin() + j - 1);
+                if (min <= this->length) {
+                    lines.erase(lines.begin() + i);
+                    lines.erase(lines.begin() + j - 1);
 
-                array<array<double, 3>, 2> line{stPoint, endPoint};
-                lines.emplace_back(line);
-                i--;
-                break;
+                    array<array<double, 3>, 2> line{stPoint, endPoint};
+                    lines.emplace_back(line);
+                    i--;
+                    break;
+                }
             }
         }
     }
@@ -125,18 +129,14 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
                 }
             }
 
-            double room = pow((180 - minAngle) / 90, this->coefficient2) * this->radius * this->coefficient1;
+            double room = (180 - minAngle) / 90 * this->coefficient1 * this->radius + this->coefficient2;
 
             auto tube = vtkSmartPointer<Tube>::New();
 
             auto lineCut = LineUtil::cut(lines.at(info.at(j).first).at(0), lines.at(info.at(j).first).at(1), point,
                                          room);
-            double height = LineUtil::getLength(lineCut.at(1), point) * 2;
-            auto normal = VectorUtil::getVector(lineCut.at(1), point);
-
             tube->setStPoint(lineCut.at(1));
             tube->setEndPoint(lineCut.at(3));
-            tube->setNormal(normal);
 
             info.at(j).second = room;
             intersections.at(i)->addTube(tube);

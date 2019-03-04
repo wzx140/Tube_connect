@@ -16,7 +16,6 @@ Tube *Tube::New() {
 
 Tube::Tube() {
     this->data = vtkSmartPointer<vtkPolyData>::New();
-    this->normal = {0};
 }
 
 
@@ -80,10 +79,6 @@ bool Tube::hasPoint(array<double, 3> point) {
     return false;
 }
 
-array<double, 3> &Tube::getNormal() {
-    return normal;
-}
-
 const vector<array<double, 3>> &Tube::getPoints() const {
     return points;
 }
@@ -110,11 +105,6 @@ array<array<double, 3>, 2> Tube::getStructureLine() {
     line[1] = center2;
 
     return line;
-}
-
-void Tube::setNormal(array<double, 3> &normal) {
-    VectorUtil::regularize(normal);
-    this->normal = normal;
 }
 
 array<double, 3> &Tube::getStPoint() {

@@ -23,12 +23,12 @@ protected:
 };
 
 TEST_F(GraphTest, updateTest) {
-    this->stlRender->setPath("res/test3.stl");
+    this->stlRender->setPath("res/100.stl");
     stlRender->load();
     auto tubes = this->stlRender->getTubes();
-    graph->setLength(250);
+    graph->setLength(100);
     graph->setRadius(3);
-//    graph->setCoefficient3(30);
+    graph->setCoefficient3(20);
     graph->create(tubes);
     graph->update();
     stlRender->setInputData(graph->getOutput(), 1);
