@@ -26,11 +26,6 @@ private:
     vtkSmartPointer<vtkPolyData> data;
 
     /**
-     * the positive-direction normal of the tube
-     */
-    array<double, 3> normal;
-
-    /**
      * points in the cell
      */
     vector<array<double, 3>> points;
@@ -61,8 +56,6 @@ public:
 
     vtkSmartPointer<vtkPolyData> getData();
 
-    array<double, 3> &getNormal();
-
     /**
      * this function must be called after set data
      * @return
@@ -70,8 +63,6 @@ public:
     const vector<array<double, 3>> &getPoints() const;
 
     array<array<double, 3>, 2> getStructureLine();
-
-    void setNormal(array<double, 3> &normal);
 
     array<double, 3> &getStPoint();
 

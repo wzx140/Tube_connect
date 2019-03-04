@@ -3,18 +3,49 @@
 //
 
 #include <cmath>
-#include <vtkBooleanOperationPolyDataFilter.h>
 
 #include "../util/TubeUtil.h"
 #include "../include/Graph.h"
+#include "vtkPolyDataBooleanFilter.h"
+#include <vtkCommand.h>
+#include <vtkTriangleFilter.h>
+
+// vtkbool
+int Point::_tag = 0;
 
 using std::pair;
 using std::sort;
 
+/**
+ * catch error
+ */
+class Observer : public vtkCommand {
+public:
+    bool hasError;
+    std::string msg;
+
+    Observer() : hasError(false) {}
+
+    static Observer *New() {
+        return new Observer;
+    }
+
+    virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long event, void *calldata) {
+        hasError = event == vtkCommand::ErrorEvent;
+        msg = static_cast<char *>(calldata);
+    }
+
+    void Clear() {
+        hasError = false;
+        msg.clear();
+    }
+};
+
+
 Graph::Graph() {
     this->length = 100;
     this->radius = 3;
-    this->coefficient1 = 1.5;
+    this->coefficient1 = 2;
     this->coefficient2 = 2;
     this->coefficient3 = 30;
 }
@@ -43,27 +74,31 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
                 double min = length1;
                 array<double, 3> stPoint = lines.at(i)[1];
                 array<double, 3> endPoint = lines.at(j)[1];
-                if (length2 < min && length2 <= this->length) {
+                if (length2 < min) {
                     min = length2;
                     stPoint = lines.at(i)[1];
                     endPoint = lines.at(j)[0];
-                } else if (length3 < min && length3 <= this->length) {
+                }
+                if (length3 < min) {
                     min = length3;
                     stPoint = lines.at(i)[0];
                     endPoint = lines.at(j)[1];
-                } else if (length4 < min && length4 <= this->length) {
+                }
+                if (length4 < min) {
                     min = length4;
                     stPoint = lines.at(i)[0];
                     endPoint = lines.at(j)[0];
                 }
 
-                lines.erase(lines.begin() + i);
-                lines.erase(lines.begin() + j - 1);
+                if (min <= this->length) {
+                    lines.erase(lines.begin() + i);
+                    lines.erase(lines.begin() + j - 1);
 
-                array<array<double, 3>, 2> line{stPoint, endPoint};
-                lines.emplace_back(line);
-                i--;
-                break;
+                    array<array<double, 3>, 2> line{stPoint, endPoint};
+                    lines.emplace_back(line);
+                    i--;
+                    break;
+                }
             }
         }
     }
@@ -114,29 +149,25 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
         for (int j = 0; j < info.size(); j++) {
 
-            double minAngle = 90;
+            double minAngle = 90.;
             auto vector1 = VectorUtil::getVector(lines.at(info.at(j).first)[0], lines.at(info.at(j).first)[1]);
             for (int k = 0; k < info.size(); k++) {
                 if (k == j) { continue; }
                 auto vector2 = VectorUtil::getVector(lines.at(info.at(k).first)[0], lines.at(info.at(k).first)[1]);
-                double angle = 90 - abs(90 - VectorUtil::getAngle(vector1, vector2));
+                double angle = 90. - abs(90. - VectorUtil::getAngle(vector1, vector2));
                 if (angle < minAngle) {
                     minAngle = angle;
                 }
             }
 
-            double room = pow((180 - minAngle) / 90, this->coefficient2) * this->radius * this->coefficient1;
+            double room = (180. - minAngle) / 90. * this->coefficient1 * this->radius + this->coefficient2;
 
             auto tube = vtkSmartPointer<Tube>::New();
 
             auto lineCut = LineUtil::cut(lines.at(info.at(j).first).at(0), lines.at(info.at(j).first).at(1), point,
                                          room);
-            double height = LineUtil::getLength(lineCut.at(1), point) * 2;
-            auto normal = VectorUtil::getVector(lineCut.at(1), point);
-
             tube->setStPoint(lineCut.at(1));
             tube->setEndPoint(lineCut.at(3));
-            tube->setNormal(normal);
 
             info.at(j).second = room;
             intersections.at(i)->addTube(tube);
@@ -162,17 +193,44 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
 
 void Graph::update() {
-    this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, this->coefficient3));
+    auto obs = vtkSmartPointer<Observer>::New();
 
     for (int i = 0; i < this->intersections.size(); i++) {
         auto tubes = this->intersections.at(i)->getTubes();
-        vector<vtkSmartPointer<vtkPolyData>> tubeData;
-        for (const auto &tube : tubes) {
-            tubeData.emplace_back(
-                    TubeUtil::createTube(tube->getStPoint(), tube->getEndPoint(), this->radius, this->coefficient3));
+        vtkSmartPointer<vtkPolyData> result = TubeUtil::createTube(tubes[0]->getStPoint(), tubes[0]->getEndPoint(),
+                                                                   this->radius, this->coefficient3);
+        for (int j = 1; j < tubes.size(); j++) {
+            auto tube = TubeUtil::createTube(tubes.at(j)->getStPoint(), tubes.at(j)->getEndPoint(), this->radius,
+                                             this->coefficient3);
+
+            auto triFilter = vtkSmartPointer<vtkTriangleFilter>::New();
+            triFilter->SetInputData(result);
+            triFilter->Update();
+            result = triFilter->GetOutput();
+
+            auto booleanFilter = vtkSmartPointer<vtkPolyDataBooleanFilter>::New();
+            booleanFilter->AddObserver(vtkCommand::ErrorEvent, obs);
+            booleanFilter->SetInputData(0, result);
+            booleanFilter->SetInputData(1, tube);
+            booleanFilter->Update();
+            if (obs->hasError) {
+                obs->Clear();
+
+                auto tubeRotate = TubeUtil::rotateTube(tube, this->coefficient3, tubes.at(j)->getStPoint(),
+                                                       tubes.at(j)->getEndPoint());
+                booleanFilter->SetInputData(1, tubeRotate);
+                booleanFilter->Update();
+                if (obs->hasError) {
+                    obs->Clear();
+                    cout << "error: " << i << endl;
+                    break;
+                }
+            }
+            result = booleanFilter->GetOutput();
         }
-        auto data = TubeUtil::connect(tubeData);
-        this->dataList.emplace_back(data);
+
+        this->dataList.emplace_back(result);
+        this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, this->coefficient3));
     }
 
 }

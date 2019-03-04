@@ -51,7 +51,7 @@ void MainWindow::import() {
 
         ui->tableWidget->item(1, 0)->setText(QString::number(250));
         ui->tableWidget->item(2, 0)->setText(QString::number(3));
-        ui->tableWidget->item(3, 0)->setText(QString::number(1.5));
+        ui->tableWidget->item(3, 0)->setText(QString::number(2));
         ui->tableWidget->item(4, 0)->setText(QString::number(2));
         ui->tableWidget->item(5, 0)->setText(QString::number(30));
         ui->statusbar->showMessage("loaded");
