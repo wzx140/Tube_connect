@@ -210,11 +210,11 @@ namespace LineUtil {
         auto vector = VectorUtil::getVector(point1, point2);
         VectorUtil::regularize(vector);
         for (int i = 0; i < 3; i++) {
-            point2[i] = point2[i] + vector[i] * (length / 2);
+            point2[i] = point2[i] + vector[i] * (length / 2.);
         }
         VectorUtil::reverse(vector);
         for (int i = 0; i < 3; i++) {
-            point1[i] = point1[i] + vector[i] * (length / 2);
+            point1[i] = point1[i] + vector[i] * (length / 2.);
         }
 
     }
@@ -267,6 +267,7 @@ namespace LineUtil {
 
     vector<array<array<double, 3>, 2>>
     cut(array<double, 3> &point1, array<double, 3> &point2, vector<array<double, 3>> &points, vector<double> &length) {
+        //FIXME: may have some bug
         vector<array<array<double, 3>, 2>> returnLines;
 
         // sort
