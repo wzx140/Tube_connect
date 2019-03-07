@@ -130,7 +130,7 @@ namespace VectorUtil {
     }
 
     bool isEqual(const array<double, 3> &vector1, const array<double, 3> &vector2) {
-        double epsilon = 0.001;
+        double epsilon = 0.01;
 
         double deltaX = abs(vector1[0] - vector2[0]);
         double deltaY = abs(vector1[1] - vector2[1]);
