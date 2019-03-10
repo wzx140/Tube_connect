@@ -8,6 +8,7 @@
 #include "../include/Graph.h"
 #include "vtkPolyDataBooleanFilter.h"
 #include <vtkCommand.h>
+#include <vtkTriangleFilter.h>
 
 // vtkbool
 int Point::_tag = 0;
@@ -201,6 +202,12 @@ void Graph::update() {
         for (int j = 1; j < tubes.size(); j++) {
             auto tube = TubeUtil::createTube(tubes.at(j)->getStPoint(), tubes.at(j)->getEndPoint(), this->radius,
                                              this->coefficient3);
+
+            auto triFilter = vtkSmartPointer<vtkTriangleFilter>::New();
+            triFilter->SetInputData(result);
+            triFilter->Update();
+            result = triFilter->GetOutput();
+
             auto booleanFilter = vtkSmartPointer<vtkPolyDataBooleanFilter>::New();
             booleanFilter->AddObserver(vtkCommand::ErrorEvent, obs);
             booleanFilter->SetInputData(0, result);
@@ -209,14 +216,13 @@ void Graph::update() {
             if (obs->hasError) {
                 obs->Clear();
 
-                auto normal = VectorUtil::getVector(tubes.at(j)->getStPoint(), tubes.at(j)->getEndPoint());
                 auto tubeRotate = TubeUtil::rotateTube(tube, this->coefficient3, tubes.at(j)->getStPoint(),
                                                        tubes.at(j)->getEndPoint());
                 booleanFilter->SetInputData(1, tubeRotate);
                 booleanFilter->Update();
                 if (obs->hasError) {
                     obs->Clear();
-                    cout << "error" << endl;
+                    cout << "error: " << i << endl;
                     break;
                 }
             }

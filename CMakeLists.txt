@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(tube_connect)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 option(BUILD_TEST "whether to build test" OFF)
 
@@ -47,9 +47,9 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt5Widgets REQUIRED)
 
 # vtkbool
-include_directories(vtkbool-2.6)
-add_subdirectory(vtkbool-2.6)
-include_directories(vtkbool-2.6/libs/vp)
+include_directories(vtkbool)
+add_subdirectory(vtkbool)
+include_directories(vtkbool/libs/vp)
 
 if (${BUILD_TEST})
     message("Build test")
