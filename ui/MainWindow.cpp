@@ -55,6 +55,8 @@ void MainWindow::import() {
         ui->tableWidget->item(4, 0)->setText(QString::number(2));
         ui->tableWidget->item(5, 0)->setText(QString::number(30));
         ui->statusbar->showMessage("loaded");
+        stlRender->getRenderer()->ResetCamera();
+        stlRender->getRenderer()->Render();
 
     }
 }
@@ -103,7 +105,8 @@ void MainWindow::run() {
     stlRender->setInputData(graph->getOutput(), 1);
     endTime = clock();
     ui->statusbar->showMessage("Total time:" + QString::number((double) (endTime - startTime) / CLOCKS_PER_SEC) + "s");
-    ui->openGLWidget->update();
+    stlRender->getRenderer()->ResetCamera();
+    stlRender->getRenderer()->Render();
 }
 
 void MainWindow::clear() {
@@ -123,6 +126,8 @@ void MainWindow::clear() {
     ui->tableWidget->item(5, 0)->setText("");
     ui->tableWidget->setEnabled(false);
     ui->statusbar->showMessage("null");
+    stlRender->getRenderer()->ResetCamera();
+    stlRender->getRenderer()->Render();
 
 }
 

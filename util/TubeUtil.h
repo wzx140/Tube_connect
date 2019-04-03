@@ -17,8 +17,8 @@
 #include <vtkTubeFilter.h>
 #include <vtkLineSource.h>
 
-#include "vtkPolyDataBooleanFilter.h"
 #include "LineUtil.h"
+#include "CircleUtil.h"
 
 using std::array;
 using std::pair;
@@ -41,28 +41,15 @@ namespace TubeUtil {
     inline vtkSmartPointer<vtkPolyData> createTube(vector<array<array<double, 3>, 2>> &lines, double radius, int side);
 
     /**
-     *  generate a tube around each input line
+     *  change the value subject to the distance of the tube
      *  @param stPoint: start center point of the tube
      *  @param endPoint: end center point of the tube
      *  @param radius
-     *  @param side: side of the tube
-     *  @param multiple: grid refinement parameter
+     *  @param resolution: resolution of tube points
      * @return
      */
     inline vtkSmartPointer<vtkPolyData>
-    createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius, int side);
-
-    /**
-     * rotate the tube by 180/side around the center
-     * @param tube
-     * @param side
-     * @param stPoint: start center point
-     * @param endPoint: end center point
-     * @return
-     */
-    inline vtkSmartPointer<vtkPolyData>
-    rotateTube(vtkSmartPointer<vtkPolyData> tube, int side, array<double, 3> stPoint, array<double, 3> endPoint);
-
+    createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius, int resolution);
 
 }
 
@@ -96,18 +83,10 @@ namespace TubeUtil {
     }
 
     vtkSmartPointer<vtkPolyData>
-    createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius, int side) {
-        auto lineSource = vtkSmartPointer<vtkLineSource>::New();
-        lineSource->SetPoint1(stPoint.data());
-        lineSource->SetPoint2(endPoint.data());
+    createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius, int resolution) {
 
-        auto filter = vtkSmartPointer<vtkTubeFilter>::New();
-        filter->SetRadius(radius);
-        filter->SetNumberOfSides(side);
-        filter->SetInputConnection(lineSource->GetOutputPort());
-        filter->Update();
+//        todo:实现类似插件功能
 
-        return filter->GetOutput();
     }
 
     array<array<double, 3>, 3> getEdgePoint(vector<array<double, 3>> &points, array<double, 3> &normal) {
@@ -164,31 +143,6 @@ namespace TubeUtil {
         edgePoints[2] = edgePoint3;
         return edgePoints;
 
-    }
-
-    vtkSmartPointer<vtkPolyData>
-    rotateTube(vtkSmartPointer<vtkPolyData> tube, int side, array<double, 3> stPoint, array<double, 3> endPoint) {
-
-        double c[] = {
-                stPoint[0]+(endPoint[0]-stPoint[0])/2.,
-                stPoint[1]+(endPoint[1]-stPoint[1])/2.,
-                stPoint[2]+(endPoint[2]-stPoint[2])/2.,
-        };
-
-
-        auto tr = vtkSmartPointer<vtkTransform>::New();
-        tr->PostMultiply();
-        tr->Translate(-c[0], -c[1], -c[2]);
-        tr->RotateWXYZ(180. / side, endPoint[0]-stPoint[0], endPoint[1]-stPoint[1], endPoint[2]-stPoint[2]);
-        tr->Translate(c);
-
-        auto tf = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
-        tf->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
-        tf->SetInputData(tube);
-        tf->SetTransform(tr);
-        tf->Update();
-
-        return tf->GetOutput();
     }
 
 

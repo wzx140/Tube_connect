@@ -6,12 +6,10 @@
 
 #include "../util/TubeUtil.h"
 #include "../include/Graph.h"
-#include "vtkPolyDataBooleanFilter.h"
-#include <vtkCommand.h>
-#include <vtkTriangleFilter.h>
-
-// vtkbool
-int Point::_tag = 0;
+#include "../include/STLRender.h"
+#include <vtkImageData.h>
+#include <vtkVoxelModeller.h>
+#include <vtkMarchingCubes.h>
 
 using std::pair;
 using std::sort;
@@ -197,41 +195,18 @@ void Graph::update() {
 
     for (int i = 0; i < this->intersections.size(); i++) {
         auto tubes = this->intersections.at(i)->getTubes();
-        vtkSmartPointer<vtkPolyData> result = TubeUtil::createTube(tubes[0]->getStPoint(), tubes[0]->getEndPoint(),
-                                                                   this->radius, this->coefficient3);
-        for (int j = 1; j < tubes.size(); j++) {
-            auto tube = TubeUtil::createTube(tubes.at(j)->getStPoint(), tubes.at(j)->getEndPoint(), this->radius,
-                                             this->coefficient3);
 
-            auto triFilter = vtkSmartPointer<vtkTriangleFilter>::New();
-            triFilter->SetInputData(result);
-            triFilter->Update();
-            result = triFilter->GetOutput();
-
-            auto booleanFilter = vtkSmartPointer<vtkPolyDataBooleanFilter>::New();
-            booleanFilter->AddObserver(vtkCommand::ErrorEvent, obs);
-            booleanFilter->SetInputData(0, result);
-            booleanFilter->SetInputData(1, tube);
-            booleanFilter->Update();
-            if (obs->hasError) {
-                obs->Clear();
-
-                auto tubeRotate = TubeUtil::rotateTube(tube, this->coefficient3, tubes.at(j)->getStPoint(),
-                                                       tubes.at(j)->getEndPoint());
-                booleanFilter->SetInputData(1, tubeRotate);
-                booleanFilter->Update();
-                if (obs->hasError) {
-                    obs->Clear();
-                    cout << "error: " << i << endl;
-                    break;
-                }
-            }
-            result = booleanFilter->GetOutput();
+//      point cloud data
+        vector<vtkSmartPointer<vtkPolyData>> tubePoints;
+        for (int j = 0; j < tubes.size(); j++) {
+//            todo: 通过距离函数，计算点阵中各个点的值，这在createTube中实现
+//            auto tube = TubeUtil::createTube(tubes.at(j)->getStPoint(), tubes.at(j)->getEndPoint(), this->radius,
+//                                             this->coefficient3);
         }
-
-        this->dataList.emplace_back(result);
-        this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, this->coefficient3));
+//        todo:移动立方体表面重建
+//        this->dataList.emplace_back(surface->GetOutput());
     }
+//    this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, this->coefficient3));
 
 }
 
