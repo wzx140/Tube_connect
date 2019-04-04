@@ -7,9 +7,8 @@
 #include "../util/TubeUtil.h"
 #include "../include/Graph.h"
 #include "../include/STLRender.h"
-#include <vtkImageData.h>
-#include <vtkVoxelModeller.h>
-#include <vtkMarchingCubes.h>
+#include <vtkContourFilter.h>
+#include <vtkSampleFunction.h>
 
 using std::pair;
 using std::sort;
@@ -191,22 +190,33 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
 
 void Graph::update() {
-    auto obs = vtkSmartPointer<Observer>::New();
 
     for (int i = 0; i < this->intersections.size(); i++) {
         auto tubes = this->intersections.at(i)->getTubes();
 
-//      point cloud data
-        vector<vtkSmartPointer<vtkPolyData>> tubePoints;
+        auto cylinderUnion = vtkSmartPointer<vtkImplicitBoolean>::New();
+        cylinderUnion->SetOperationTypeToUnion();
+
         for (int j = 0; j < tubes.size(); j++) {
-//            todo: 通过距离函数，计算点阵中各个点的值，这在createTube中实现
-//            auto tube = TubeUtil::createTube(tubes.at(j)->getStPoint(), tubes.at(j)->getEndPoint(), this->radius,
-//                                             this->coefficient3);
+            //todo:增长连接处圆管的长度，阻止间隙的产生
+            auto tube = TubeUtil::createTube(tubes.at(j)->getStPoint(), tubes.at(j)->getEndPoint(), this->radius);
+            cylinderUnion->AddFunction(tube);
         }
-//        todo:移动立方体表面重建
-//        this->dataList.emplace_back(surface->GetOutput());
+
+        auto center = this->intersections.at(i)->getPoint();
+        auto sample = vtkSmartPointer<vtkSampleFunction>::New();
+        sample->SetImplicitFunction(cylinderUnion);
+        sample->SetModelBounds(center[0] - 20, center[0] + 20, center[1] - 20, center[1] + 20, center[2] - 20,
+                               center[2] + 20);
+        sample->SetSampleDimensions(128, 128, 128);
+        sample->ComputeNormalsOff();
+        auto surface = vtkSmartPointer<vtkContourFilter>::New();
+        surface->SetInputConnection(sample->GetOutputPort());
+        surface->SetValue(0, 0.0);
+        surface->Update();
+        this->dataList.emplace_back(surface->GetOutput());
     }
-//    this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, this->coefficient3));
+    this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, this->coefficient3));
 
 }
 

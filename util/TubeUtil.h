@@ -7,24 +7,22 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
-#include <vtkDoubleArray.h>
-#include <vtkTransform.h>
-#include <vtkTransformPolyDataFilter.h>
 #include <array>
-#include <map>
 #include <vector>
 #include <vtkLine.h>
 #include <vtkTubeFilter.h>
 #include <vtkLineSource.h>
+#include <vtkCylinder.h>
+#include <vtkImplicitBoolean.h>
+#include <vtkImplicitFunction.h>
+#include <vtkPlane.h>
+#include <vtkClipDataSet.h>
 
 #include "LineUtil.h"
 #include "CircleUtil.h"
 
 using std::array;
-using std::pair;
 using std::vector;
-using std::sort;
-using std::greater;
 
 namespace TubeUtil {
 
@@ -41,15 +39,14 @@ namespace TubeUtil {
     inline vtkSmartPointer<vtkPolyData> createTube(vector<array<array<double, 3>, 2>> &lines, double radius, int side);
 
     /**
-     *  change the value subject to the distance of the tube
+     *  generate the implicit surface of the tube
      *  @param stPoint: start center point of the tube
      *  @param endPoint: end center point of the tube
      *  @param radius
-     *  @param resolution: resolution of tube points
      * @return
      */
-    inline vtkSmartPointer<vtkPolyData>
-    createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius, int resolution);
+    inline vtkSmartPointer<vtkImplicitFunction>
+    createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius);
 
 }
 
@@ -82,11 +79,31 @@ namespace TubeUtil {
         return filter->GetOutput();
     }
 
-    vtkSmartPointer<vtkPolyData>
-    createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius, int resolution) {
+    vtkSmartPointer<vtkImplicitFunction>
+    createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius) {
+        auto center = LineUtil::getCenter(stPoint, endPoint);
+        auto normal = VectorUtil::getVector(stPoint, endPoint);
 
-//        todo:实现类似插件功能
+        auto plane1 = vtkSmartPointer<vtkPlane>::New();
+        plane1->SetOrigin(stPoint.data());
+        VectorUtil::reverse(normal);
+        plane1->SetNormal(normal.data());
+        VectorUtil::reverse(normal);
+        auto plane2 = vtkSmartPointer<vtkPlane>::New();
+        plane2->SetOrigin(endPoint.data());
+        plane2->SetNormal(normal.data());
 
+        auto cylinder = vtkSmartPointer<vtkCylinder>::New();
+        cylinder->SetRadius(radius);
+        cylinder->SetCenter(center.data());
+        cylinder->SetAxis(normal.data());
+        auto theCylinder = vtkSmartPointer<vtkImplicitBoolean>::New();
+        theCylinder->SetOperationTypeToIntersection();
+        theCylinder->AddFunction(cylinder);
+        theCylinder->AddFunction(plane1);
+        theCylinder->AddFunction(plane2);
+
+        return theCylinder;
     }
 
     array<array<double, 3>, 3> getEdgePoint(vector<array<double, 3>> &points, array<double, 3> &normal) {
