@@ -16,8 +16,9 @@
 #include <vtkImplicitBoolean.h>
 #include <vtkImplicitFunction.h>
 #include <vtkPlane.h>
-#include <vtkClipDataSet.h>
+#include <vtkClipPolyData.h>
 
+#include "../include/Tube.h"
 #include "LineUtil.h"
 #include "CircleUtil.h"
 
@@ -48,6 +49,14 @@ namespace TubeUtil {
     inline vtkSmartPointer<vtkImplicitFunction>
     createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius);
 
+    /**
+     * remove the region of tubes out of data
+     * @param data
+     * @param tubes: the region to remove
+     * @return
+     */
+    inline vtkSmartPointer<vtkPolyData>
+    clip(vtkSmartPointer<vtkPolyData> data, vector<vtkSmartPointer<vtkImplicitFunction>> tubes);
 }
 
 namespace TubeUtil {
@@ -160,6 +169,20 @@ namespace TubeUtil {
         edgePoints[2] = edgePoint3;
         return edgePoints;
 
+    }
+
+    vtkSmartPointer<vtkPolyData>
+    clip(vtkSmartPointer<vtkPolyData> data, vector<vtkSmartPointer<vtkImplicitFunction>> tubes) {
+        vtkSmartPointer<vtkPolyData> result = data;
+        for (auto &tube : tubes) {
+            auto clipper = vtkSmartPointer<vtkClipPolyData>::New();
+            clipper->SetClipFunction(tube);
+            clipper->SetInputData(result);
+            clipper->InsideOutOff();
+            clipper->Update();
+            result = clipper->GetOutput();
+        }
+        return result;
     }
 
 

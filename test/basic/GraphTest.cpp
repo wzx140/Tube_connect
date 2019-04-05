@@ -23,7 +23,7 @@ protected:
 };
 
 TEST_F(GraphTest, updateTest) {
-    this->stlRender->setPath("res/test2.stl");
+    this->stlRender->setPath("res/100.stl");
     stlRender->load();
     auto tubes = this->stlRender->getTubes();
     graph->setLength(250);
