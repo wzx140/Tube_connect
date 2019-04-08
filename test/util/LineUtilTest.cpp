@@ -19,50 +19,23 @@ protected:
 
     virtual void SetUp() {
         stlRender = vtkSmartPointer<STLRender>::New();
-        stlRender->setPath("res/test2.stl");
+        stlRender->setPath("../res/test2.stl");
         stlRender->load();
     }
 };
 
-/**
- * if you see a smooth curve line based on 10 points, the test is pass
- */
-TEST_F(LineUtilTest, lineBlendTest) {
-    array<double, 3> point1 = {0, 0, 0};
-    array<double, 3> vector1 = {0, 1, 0};
-    array<double, 3> point2 = {10, -1, 0};
-    array<double, 3> vector2 = {-0.525321, 0.525321, 0};
-    array<double, 3> center = {100, 100, 100};
-    auto data = LineUtil::lineBlend(point1, vector1, point2, vector2, center, 10);
-    auto points = data->GetPoints();
-    vector<vtkSmartPointer<vtkPolyData>> dataList;
-
-    for (int i = 0; i < points->GetNumberOfPoints(); i++) {
-        auto sphere = vtkSmartPointer<vtkSphereSource>::New();
-        sphere->SetCenter(points->GetPoint(i));
-        sphere->SetRadius(0.2);
-        sphere->Update();
-        dataList.emplace_back(sphere->GetOutput());
-    }
-
-    stlRender->setInputData(dataList, 0.5);
-    stlRender->axisOn();
-    stlRender->start();
-
-}
-
 TEST_F(LineUtilTest, intersection3DTest) {
     array<double, 3> point11 = {1, 1, 0};
-    array<double, 3> point12 = {0, 0, 0};
+    array<double, 3> point12 = {-1, -1, 0};
     array<double, 3> point21 = {1, -1, 0};
-    array<double, 3> point22 = {0, 0, 0};
+    array<double, 3> point22 = {-1, 1, 0};
     array<double, 3> point{-1, -1, -1};
     int state = LineUtil::intersection3D(point11, point12, point21, point22, point);
     EXPECT_EQ(state, 1);
     if (state == 1) {
         EXPECT_EQ(point[0], 0);
-        EXPECT_EQ(point[1], 2);
-        EXPECT_EQ(point[2], 2);
+        EXPECT_EQ(point[1], 0);
+        EXPECT_EQ(point[2], 0);
     }
 
 }

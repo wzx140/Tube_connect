@@ -26,7 +26,7 @@ protected:
  * if you see a tube, the test is pass
  */
 TEST_F(STLRenderTest, test1) {
-    stlRender->setPath("res/test1.stl");
+    stlRender->setPath("../res/test1.stl");
     stlRender->load();
     stlRender->setInputData(stlRender->getData(), 0.5);
     stlRender->start();
@@ -36,7 +36,7 @@ TEST_F(STLRenderTest, test1) {
  * if you see three tubes, the test is pass
  */
 TEST_F(STLRenderTest, test2) {
-    stlRender->setPath("res/test2.stl");
+    stlRender->setPath("../res/test2.stl");
     stlRender->load();
     stlRender->setInputData(stlRender->getData(), 0.5);
     stlRender->start();
@@ -46,7 +46,7 @@ TEST_F(STLRenderTest, test2) {
  * if you see a tube with axis, the test is pass
  */
 TEST_F(STLRenderTest, testAxisOn) {
-    stlRender->setPath("res/test1.stl");
+    stlRender->setPath("../res/test1.stl");
     stlRender->load();
     stlRender->setInputData(stlRender->getData(), 0.5);
     stlRender->axisOn();
@@ -65,7 +65,7 @@ TEST_F(STLRenderTest, getCylinderstest) {
     double viewport3[4] = {0.5, 0.0, 0.75, 1.0};
     double viewport4[4] = {0.75, 0.0, 1.0, 1.0};
 
-    stlRender->setPath("res/test2.stl");
+    stlRender->setPath("../res/test2.stl");
     stlRender->load();
     auto tubes = stlRender->getTubes();
 

@@ -33,7 +33,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::import() {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("import STL file"), "test/res",
+    QString fileName = QFileDialog::getOpenFileName(this, tr("import STL file"), "res",
                                                     tr("STLFile(*.stl *.STL)"));
     if (!fileName.isEmpty() && (fileName.endsWith(".stl", Qt::CaseInsensitive))) {
         this->stlRender->setPath(fileName.toStdString());

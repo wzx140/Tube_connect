@@ -6,15 +6,6 @@ Import a stl file which contains many unconnected tubes, the program will connec
 * VTK
 * CMake
 * QT5
-* GTest(Optional)
-
-### RELEASE
-- [v1.0](https://github.com/wzx140/Tube_connect/releases/tag/v1.0)
-<img src="img/1.png" width="350" height="300"/>
-<img src="img/2.png" width="350" height="300"/>
-
-- [v2.0](https://github.com/wzx140/Tube_connect/releases/tag/v2.0)
-  - more stable and faster
 
 ### BUILD
 #### LINUX
@@ -39,13 +30,14 @@ Be sure to add the VTK **bin** and **lib** directory to your system environment 
 `./tube_connect`
 
 ### TEST
-If you want to run the test, you should build the source in test mode with `cmake -DBUILD_TEST=ON`. Then just run `cd test` and `./tube_connect_test`
+There are some test files in `./res`
+- `test1.stl` : a tube
+- `test2.stl` : three unconnected tubes
+- `test3.stl` : six unconnected tubes
+- `100.stl` : one hundred unconnected tubes
+- `1000.stl` : ten hundreds unconnected tubes
 
 ### ATTENTION
 1. The import file must be stl format and contain only tubes that are not connected
 2. The radius of each tube must be equal 
 3. The connection only create in the intersection of the center line of the tubes
-
-### REFERENCE
-- [vtkbool](https://github.com/zippy84/vtkbool) : A new boolean operations filter for VTK
-    - remove python wrapper part

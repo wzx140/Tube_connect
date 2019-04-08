@@ -7,7 +7,7 @@ set(CMAKE_BUILD_TYPE Debug)
 option(BUILD_TEST "whether to build test" OFF)
 
 aux_source_directory(src SOURCE_FILES)
-set(HEAD_FILES include/STLRender.h include/Tube.h include/CellPickerInteractorStyle.h util/VectorUtil.h util/LineUtil.h util/TubeUtil.h util/CircleUtil.h include/Graph.h include/Intersection.h)
+set(HEAD_FILES include/STLRender.h include/Tube.h util/VectorUtil.h util/LineUtil.h util/TubeUtil.h util/CircleUtil.h include/Graph.h include/Intersection.h)
 set(UI_FILES ui/MainWindow.ui ui/MainWindow.cpp ui/MainWindow.h ui/ui_MainWindow.h)
 
 # vtk
@@ -47,6 +47,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 find_package(Qt5Widgets REQUIRED)
+
+set(RESOURCE_FILES res/test1.stl res/test2.stl res/test3.stl res/100.stl res/1000.stl)
+file(COPY ${RESOURCE_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/res)
 
 if (${BUILD_TEST})
     message("Build test")

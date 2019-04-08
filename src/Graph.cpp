@@ -206,7 +206,6 @@ void Graph::update() {
         auto data = TubeUtil::clip(surface->GetOutput(), tubesRemove);
 
         this->dataList.emplace_back(data);
-//        todo:how to connect edge of tubes to avoid gap
     }
     this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, 20));
 

@@ -28,7 +28,7 @@ TEST_F(TubeTest, hasPointTest) {
     array<double, 3> point3 = {-21.511, 4.17, 6.997};
     array<double, 3> point4 = {16.593, 6.975, 9.7423};
 
-    stlRender->setPath("res/test2.stl");
+    stlRender->setPath("../res/test2.stl");
     stlRender->load();
     auto tubes = stlRender->getTubes();
 
@@ -43,7 +43,7 @@ TEST_F(TubeTest, hasPointTest) {
  * if you see the points on the tube, the test pass
  */
 TEST_F(TubeTest, getPointsTest) {
-    stlRender->setPath("res/test1.stl");
+    stlRender->setPath("../res/test1.stl");
     stlRender->load();
     auto tubes = stlRender->getTubes();
     auto tube = tubes[0];
@@ -68,7 +68,7 @@ TEST_F(TubeTest, getPointsTest) {
  */
 TEST_F(TubeTest, getStructureLineTest) {
 
-    stlRender->setPath("res/test2.stl");
+    stlRender->setPath("../res/test2.stl");
     stlRender->load();
     auto tubes = stlRender->getTubes();
     auto tube = tubes[0];
