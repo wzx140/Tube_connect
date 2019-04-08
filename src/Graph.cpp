@@ -6,40 +6,12 @@
 
 #include "../util/TubeUtil.h"
 #include "../include/Graph.h"
-#include "vtkPolyDataBooleanFilter.h"
-#include <vtkCommand.h>
-#include <vtkTriangleFilter.h>
-
-// vtkbool
-int Point::_tag = 0;
+#include "../include/STLRender.h"
+#include <vtkContourFilter.h>
+#include <vtkSampleFunction.h>
 
 using std::pair;
 using std::sort;
-
-/**
- * catch error
- */
-class Observer : public vtkCommand {
-public:
-    bool hasError;
-    std::string msg;
-
-    Observer() : hasError(false) {}
-
-    static Observer *New() {
-        return new Observer;
-    }
-
-    virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long event, void *calldata) {
-        hasError = event == vtkCommand::ErrorEvent;
-        msg = static_cast<char *>(calldata);
-    }
-
-    void Clear() {
-        hasError = false;
-        msg.clear();
-    }
-};
 
 
 Graph::Graph() {
@@ -193,45 +165,50 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
 
 void Graph::update() {
-    auto obs = vtkSmartPointer<Observer>::New();
 
     for (int i = 0; i < this->intersections.size(); i++) {
         auto tubes = this->intersections.at(i)->getTubes();
-        vtkSmartPointer<vtkPolyData> result = TubeUtil::createTube(tubes[0]->getStPoint(), tubes[0]->getEndPoint(),
-                                                                   this->radius, this->coefficient3);
-        for (int j = 1; j < tubes.size(); j++) {
-            auto tube = TubeUtil::createTube(tubes.at(j)->getStPoint(), tubes.at(j)->getEndPoint(), this->radius,
-                                             this->coefficient3);
 
-            auto triFilter = vtkSmartPointer<vtkTriangleFilter>::New();
-            triFilter->SetInputData(result);
-            triFilter->Update();
-            result = triFilter->GetOutput();
+        auto cylinderUnion = vtkSmartPointer<vtkImplicitBoolean>::New();
+        cylinderUnion->SetOperationTypeToUnion();
 
-            auto booleanFilter = vtkSmartPointer<vtkPolyDataBooleanFilter>::New();
-            booleanFilter->AddObserver(vtkCommand::ErrorEvent, obs);
-            booleanFilter->SetInputData(0, result);
-            booleanFilter->SetInputData(1, tube);
-            booleanFilter->Update();
-            if (obs->hasError) {
-                obs->Clear();
+        vector<vtkSmartPointer<vtkImplicitFunction>> tubesRemove;
 
-                auto tubeRotate = TubeUtil::rotateTube(tube, this->coefficient3, tubes.at(j)->getStPoint(),
-                                                       tubes.at(j)->getEndPoint());
-                booleanFilter->SetInputData(1, tubeRotate);
-                booleanFilter->Update();
-                if (obs->hasError) {
-                    obs->Clear();
-                    cout << "error: " << i << endl;
-                    break;
-                }
-            }
-            result = booleanFilter->GetOutput();
+        for (int j = 0; j < tubes.size(); j++) {
+//            extend the tube to avoid the gap
+            array<double, 3> stPointExtend{tubes.at(j)->getStPoint()};
+            array<double, 3> endPointExtend{tubes.at(j)->getEndPoint()};
+            LineUtil::extend(stPointExtend, endPointExtend, 6);
+
+//            located the caps on the tube
+            auto tubeRemove1 = TubeUtil::createTube(tubes.at(j)->getStPoint(), stPointExtend, this->radius + 0.5);
+            auto tubeRemove2 = TubeUtil::createTube(tubes.at(j)->getEndPoint(), endPointExtend, this->radius + 0.5);
+            tubesRemove.emplace_back(tubeRemove1);
+            tubesRemove.emplace_back(tubeRemove2);
+
+            auto tube = TubeUtil::createTube(stPointExtend, endPointExtend, this->radius);
+            cylinderUnion->AddFunction(tube);
         }
 
-        this->dataList.emplace_back(result);
-        this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, this->coefficient3));
+        auto center = this->intersections.at(i)->getPoint();
+        auto sample = vtkSmartPointer<vtkSampleFunction>::New();
+        sample->SetImplicitFunction(cylinderUnion);
+        sample->SetModelBounds(center[0] - 20, center[0] + 20, center[1] - 20, center[1] + 20, center[2] - 20,
+                               center[2] + 20);
+        sample->SetSampleDimensions(this->coefficient3, this->coefficient3, this->coefficient3);
+        sample->ComputeNormalsOff();
+        auto surface = vtkSmartPointer<vtkContourFilter>::New();
+        surface->SetInputConnection(sample->GetOutputPort());
+        surface->SetValue(0, 0.0);
+        surface->Update();
+
+//        remove caps on the tube
+        auto data = TubeUtil::clip(surface->GetOutput(), tubesRemove);
+
+        this->dataList.emplace_back(data);
+//        todo:how to connect edge of tubes to avoid gap
     }
+    this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, 20));
 
 }
 

@@ -164,11 +164,3 @@ TEST_F(LineUtilTest, cut2Test) {
 //    stlRender->axisOn();
     stlRender->start();
 }
-
-TEST_F(LineUtilTest, isCollinearTest) {
-    array<array<double, 3>, 2> line1 = {-39.996429443359375, -40.003570556640625, 200.02751159667969,
-                                        -29.99847412109375, -30.00152587890625, 200};
-    array<array<double, 3>, 2> line2 = {40.003570556640625, 39.996429443359375, 199.97248840332031, 30.00152587890625,
-                                        29.99847412109375, 200};
-    cout<<LineUtil::isCollinear(line1, line2);
-}

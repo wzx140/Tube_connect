@@ -26,12 +26,12 @@ TEST_F(GraphTest, updateTest) {
     this->stlRender->setPath("res/100.stl");
     stlRender->load();
     auto tubes = this->stlRender->getTubes();
-    graph->setLength(150);
+    graph->setLength(250);
     graph->setRadius(3);
     graph->setCoefficient3(30);
     graph->create(tubes);
     graph->update();
     stlRender->setInputData(graph->getOutput(), 1);
-//    stlRender->axisOn();
+    stlRender->axisOn();
     stlRender->start();
 }

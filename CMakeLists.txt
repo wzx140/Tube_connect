@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 project(tube_connect)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 option(BUILD_TEST "whether to build test" OFF)
 
@@ -38,6 +38,8 @@ find_package(VTK COMPONENTS
   vtkkwiml
   vtkzlib REQUIRED)
 
+#find_package(VTK REQUIRED)
+
 include(${VTK_USE_FILE})
 
 # qt
@@ -45,11 +47,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 find_package(Qt5Widgets REQUIRED)
-
-# vtkbool
-include_directories(vtkbool)
-add_subdirectory(vtkbool)
-include_directories(vtkbool/libs/vp)
 
 if (${BUILD_TEST})
     message("Build test")
@@ -61,4 +58,4 @@ IF (WIN32)
 ELSE ()
 	add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${HEAD_FILES} ${UI_FILES})
 ENDIF ()
-target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt5::Widgets vtkbool)
+target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt5::Widgets)

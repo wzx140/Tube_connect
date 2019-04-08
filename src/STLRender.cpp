@@ -159,6 +159,7 @@ bool STLRender::output(std::string path) {
     auto stlWriter = vtkSmartPointer<vtkSTLWriter>::New();
     stlWriter->SetFileName(path.c_str());
     stlWriter->SetInputData(this->data);
+    stlWriter->SetFileTypeToBinary();
     int status = stlWriter->Write();
     return status != 0;
 }

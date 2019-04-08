@@ -267,7 +267,6 @@ namespace LineUtil {
 
     vector<array<array<double, 3>, 2>>
     cut(array<double, 3> &point1, array<double, 3> &point2, vector<array<double, 3>> &points, vector<double> &length) {
-        //FIXME: may have some bug
         vector<array<array<double, 3>, 2>> returnLines;
 
         // sort
