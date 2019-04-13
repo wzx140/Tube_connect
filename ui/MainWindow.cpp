@@ -56,7 +56,7 @@ void MainWindow::import() {
         ui->tableWidget->item(5, 0)->setText(QString::number(30));
         ui->statusbar->showMessage("loaded");
         stlRender->getRenderer()->ResetCamera();
-        stlRender->getRenderer()->Render();
+        stlRender->getWindow()->Render();
 
     }
 }
@@ -106,7 +106,7 @@ void MainWindow::run() {
     endTime = clock();
     ui->statusbar->showMessage("Total time:" + QString::number((double) (endTime - startTime) / CLOCKS_PER_SEC) + "s");
     stlRender->getRenderer()->ResetCamera();
-    stlRender->getRenderer()->Render();
+    stlRender->getWindow()->Render();
 }
 
 void MainWindow::clear() {
@@ -127,7 +127,7 @@ void MainWindow::clear() {
     ui->tableWidget->setEnabled(false);
     ui->statusbar->showMessage("null");
     stlRender->getRenderer()->ResetCamera();
-    stlRender->getRenderer()->Render();
+    stlRender->getWindow()->Render();
 
 }
 
