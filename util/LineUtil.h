@@ -19,6 +19,7 @@
 #include <vtkParametricFunctionSource.h>
 #include <vtkPoints.h>
 #include <vtkCleanPolyData.h>
+#include <climits>
 
 #include "VectorUtil.h"
 
@@ -77,7 +78,7 @@ namespace LineUtil {
      * @param point1
      * @param point2
      */
-    inline void extend(array<double, 3> &point1, array<double, 3> &point2, double length);
+    inline array<array<double, 3>, 2> extend(array<array<double, 3>, 2> &line, double length);
 
     /**
      * cut the line with point and length
@@ -152,17 +153,19 @@ namespace LineUtil {
                     pow(stPoint[2] - endPoint[2], 2));
     }
 
-    void extend(array<double, 3> &point1, array<double, 3> &point2, double length) {
-        auto vector = VectorUtil::getVector(point1, point2);
+    array<array<double, 3>, 2> extend(array<array<double, 3>, 2> &line, double length) {
+        auto vector = VectorUtil::getVector(line[0], line[1]);
+        array<double, 3> point1{};
+        array<double, 3> point2{};
         VectorUtil::regularize(vector);
         for (int i = 0; i < 3; i++) {
-            point2[i] = point2[i] + vector[i] * (length / 2.);
+            point2[i] = line[1][i] + vector[i] * (length / 2.);
         }
         VectorUtil::reverse(vector);
         for (int i = 0; i < 3; i++) {
-            point1[i] = point1[i] + vector[i] * (length / 2.);
+            point1[i] = line[0][i] + vector[i] * (length / 2.);
         }
-
+        return array<array<double, 3>, 2>{point1, point2};
     }
 
     int intersection3D(array<double, 3> &point11, array<double, 3> &point12, array<double, 3> &point21,
@@ -192,6 +195,13 @@ namespace LineUtil {
         array<double, 3> point_1{};
         array<double, 3> point_2{};
 
+        auto vector1 = VectorUtil::getVector(point1, point);
+        auto vector2 = VectorUtil::getVector(point1, point2);
+        if ((VectorUtil::getAngle(vector1, vector2) - 180) > 5) {
+            // the error is too big
+            assert(false);
+        }
+
         auto vector = VectorUtil::getVector(point, point1);
         VectorUtil::regularize(vector);
         point_1.at(0) = point.at(0) + vector.at(0) * length;
@@ -207,6 +217,19 @@ namespace LineUtil {
         points.at(1) = point_1;
         points.at(2) = point2;
         points.at(3) = point_2;
+        if (LineUtil::getLength(point_1, point) >= LineUtil::getLength(point1, point)) {
+            array<double, 3> point{std::numeric_limits<double>::max(), std::numeric_limits<double>::max(),
+                                   std::numeric_limits<double>::max()};
+            points[0] = point;
+            points[1] = point;
+        }
+
+        if (LineUtil::getLength(point_2, point) >= LineUtil::getLength(point2, point)) {
+            array<double, 3> point{std::numeric_limits<double>::max(), std::numeric_limits<double>::max(),
+                                   std::numeric_limits<double>::max()};
+            points[2] = point;
+            points[3] = point;
+        }
 
         return points;
     }
@@ -234,12 +257,20 @@ namespace LineUtil {
         line2.at(1) = point2;
         for (int i = 0; i < points.size(); i++) {
             auto lines = cut(line2.at(0), line2.at(1), points.at(i), length.at(i));
-            array<array<double, 3>, 2> line1{};
-            line1.at(0) = lines[0];
-            line1.at(1) = lines[1];
+
+            if (lines.at(0)[0] != std::numeric_limits<double>::max()) {
+                array<array<double, 3>, 2> line1{};
+                line1.at(0) = lines[0];
+                line1.at(1) = lines[1];
+                returnLines.emplace_back(line1);
+            }
+
+            if (lines.at(3)[0] == std::numeric_limits<double>::max()) {
+                break;
+            }
+
             line2.at(0) = lines[3];
             line2.at(1) = lines[2];
-            returnLines.emplace_back(line1);
         }
         returnLines.emplace_back(line2);
 

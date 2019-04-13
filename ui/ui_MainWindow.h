@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.12.1
+** Created by: Qt User Interface Compiler version 5.12.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -66,8 +66,8 @@ public:
         QTableWidgetItem *__qtablewidgetitem = new QTableWidgetItem();
         __qtablewidgetitem->setText(QString::fromUtf8("Value"));
         tableWidget->setHorizontalHeaderItem(0, __qtablewidgetitem);
-        if (tableWidget->rowCount() < 6)
-            tableWidget->setRowCount(6);
+        if (tableWidget->rowCount() < 5)
+            tableWidget->setRowCount(5);
         QTableWidgetItem *__qtablewidgetitem1 = new QTableWidgetItem();
         tableWidget->setVerticalHeaderItem(0, __qtablewidgetitem1);
         QTableWidgetItem *__qtablewidgetitem2 = new QTableWidgetItem();
@@ -79,27 +79,24 @@ public:
         QTableWidgetItem *__qtablewidgetitem5 = new QTableWidgetItem();
         tableWidget->setVerticalHeaderItem(4, __qtablewidgetitem5);
         QTableWidgetItem *__qtablewidgetitem6 = new QTableWidgetItem();
-        tableWidget->setVerticalHeaderItem(5, __qtablewidgetitem6);
+        __qtablewidgetitem6->setFlags(
+                Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable |
+                Qt::ItemIsEnabled);
+        tableWidget->setItem(0, 0, __qtablewidgetitem6);
         QTableWidgetItem *__qtablewidgetitem7 = new QTableWidgetItem();
         __qtablewidgetitem7->setFlags(
                 Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable |
                 Qt::ItemIsEnabled);
-        tableWidget->setItem(0, 0, __qtablewidgetitem7);
+        tableWidget->setItem(1, 0, __qtablewidgetitem7);
         QTableWidgetItem *__qtablewidgetitem8 = new QTableWidgetItem();
         __qtablewidgetitem8->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        tableWidget->setItem(1, 0, __qtablewidgetitem8);
+        tableWidget->setItem(2, 0, __qtablewidgetitem8);
         QTableWidgetItem *__qtablewidgetitem9 = new QTableWidgetItem();
         __qtablewidgetitem9->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        tableWidget->setItem(2, 0, __qtablewidgetitem9);
+        tableWidget->setItem(3, 0, __qtablewidgetitem9);
         QTableWidgetItem *__qtablewidgetitem10 = new QTableWidgetItem();
         __qtablewidgetitem10->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        tableWidget->setItem(3, 0, __qtablewidgetitem10);
-        QTableWidgetItem *__qtablewidgetitem11 = new QTableWidgetItem();
-        __qtablewidgetitem11->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        tableWidget->setItem(4, 0, __qtablewidgetitem11);
-        QTableWidgetItem *__qtablewidgetitem12 = new QTableWidgetItem();
-        __qtablewidgetitem12->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        tableWidget->setItem(5, 0, __qtablewidgetitem12);
+        tableWidget->setItem(4, 0, __qtablewidgetitem10);
         tableWidget->setObjectName(QString::fromUtf8("tableWidget"));
         tableWidget->setEnabled(false);
         QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Preferred);
@@ -177,16 +174,11 @@ public:
                 QApplication::translate("MainWindow", "the length of each tube after connection", nullptr));
 #endif // QT_NO_TOOLTIP
         QTableWidgetItem *___qtablewidgetitem2 = tableWidget->verticalHeaderItem(2);
-        ___qtablewidgetitem2->setText(QApplication::translate("MainWindow", "radius", nullptr));
-#ifndef QT_NO_TOOLTIP
-        ___qtablewidgetitem2->setToolTip(QApplication::translate("MainWindow", "radius of each tube", nullptr));
-#endif // QT_NO_TOOLTIP
+        ___qtablewidgetitem2->setText(QApplication::translate("MainWindow", "coefficient1", nullptr));
         QTableWidgetItem *___qtablewidgetitem3 = tableWidget->verticalHeaderItem(3);
-        ___qtablewidgetitem3->setText(QApplication::translate("MainWindow", "coefficient1", nullptr));
+        ___qtablewidgetitem3->setText(QApplication::translate("MainWindow", "coefficient2", nullptr));
         QTableWidgetItem *___qtablewidgetitem4 = tableWidget->verticalHeaderItem(4);
-        ___qtablewidgetitem4->setText(QApplication::translate("MainWindow", "coefficient2", nullptr));
-        QTableWidgetItem *___qtablewidgetitem5 = tableWidget->verticalHeaderItem(5);
-        ___qtablewidgetitem5->setText(QApplication::translate("MainWindow", "coefficient3", nullptr));
+        ___qtablewidgetitem4->setText(QApplication::translate("MainWindow", "coefficient3", nullptr));
 
         const bool __sortingEnabled = tableWidget->isSortingEnabled();
         tableWidget->setSortingEnabled(false);

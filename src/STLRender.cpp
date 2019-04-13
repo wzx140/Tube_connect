@@ -11,6 +11,7 @@
 #include <vtkPolyDataConnectivityFilter.h>
 #include <vtkAppendPolyData.h>
 #include <vtkSTLWriter.h>
+#include <vtkCamera.h>
 
 using std::string;
 using std::vector;
