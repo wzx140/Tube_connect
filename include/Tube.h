@@ -31,14 +31,19 @@ private:
     vector<array<double, 3>> points;
 
     /**
-     * start center point of the tube
+     * the center line of the tube
      */
-    array<double, 3> stPoint;
+    array<array<double, 3>, 2> centerLine;
 
     /**
-     * end center point of the tube
+     * the radius of the tube
      */
-    array<double, 3> endPoint;
+    double radius;
+
+    /**
+     * the normal of the tube
+     */
+    array<double, 3> normal;
 
 public:
     Tube();
@@ -64,14 +69,17 @@ public:
 
     array<array<double, 3>, 2> getStructureLine();
 
-    array<double, 3> &getStPoint();
+    double getRadius();
 
-    void setStPoint(array<double, 3> &stPoint);
+    void setRadius(double radius);
 
-    array<double, 3> &getEndPoint();
+    array<double, 3> &getNormal();
 
-    void setEndPoint(array<double, 3> &endPoint);
+    void setNormal(array<double, 3> &normal);
 
+    array<array<double, 3>, 2> &getCenterLine();
+
+    void setCenterLine(array<array<double, 3>, 2> &centerLine);
 };
 
 

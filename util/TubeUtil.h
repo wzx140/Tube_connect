@@ -9,7 +9,6 @@
 #include <vtkPolyData.h>
 #include <array>
 #include <vector>
-#include <vtkLine.h>
 #include <vtkTubeFilter.h>
 #include <vtkLineSource.h>
 #include <vtkCylinder.h>
@@ -18,6 +17,7 @@
 #include <vtkPlane.h>
 #include <vtkClipPolyData.h>
 
+#include "../include/STLRender.h"
 #include "../include/Tube.h"
 #include "LineUtil.h"
 #include "CircleUtil.h"
@@ -37,7 +37,7 @@ namespace TubeUtil {
      *  @param side: side of the tube
      * @return
      */
-    inline vtkSmartPointer<vtkPolyData> createTube(vector<array<array<double, 3>, 2>> &lines, double radius, int side);
+    inline vtkSmartPointer<vtkPolyData> createTube(vector<vtkSmartPointer<Tube>> tubeLines, int side);
 
     /**
      *  generate the implicit surface of the tube
@@ -62,30 +62,20 @@ namespace TubeUtil {
 namespace TubeUtil {
 
 
-    vtkSmartPointer<vtkPolyData> createTube(vector<array<array<double, 3>, 2>> &lines, double radius, int side) {
-        auto graph = vtkSmartPointer<vtkPolyData>::New();
-        auto points = vtkSmartPointer<vtkPoints>::New();
-        auto lines_ = vtkSmartPointer<vtkCellArray>::New();
-
-        for (const auto &line : lines) {
-            array<double, 3> point1 = line[0];
-            array<double, 3> point2 = line[1];
-            auto id1 = points->InsertNextPoint(point1.data());
-            auto id2 = points->InsertNextPoint(point2.data());
-
-            auto line_ = vtkSmartPointer<vtkLine>::New();
-            line_->GetPointIds()->SetId(0, id1);
-            line_->GetPointIds()->SetId(1, id2);
-            lines_->InsertNextCell(line_);
+    inline vtkSmartPointer<vtkPolyData> createTube(vector<vtkSmartPointer<Tube>> tubeLines, int side) {
+        vector<vtkSmartPointer<vtkPolyData>> data;
+        for (auto &tubeLine : tubeLines) {
+            auto filter = vtkSmartPointer<vtkTubeFilter>::New();
+            auto line = vtkSmartPointer<vtkLineSource>::New();
+            line->SetPoint1(tubeLine->getCenterLine()[0].data());
+            line->SetPoint2(tubeLine->getCenterLine()[1].data());
+            filter->SetInputConnection(line->GetOutputPort());
+            filter->SetNumberOfSides(side);
+            filter->SetRadius(tubeLine->getRadius());
+            filter->Update();
+            data.emplace_back(filter->GetOutput());
         }
-        graph->SetPoints(points);
-        graph->SetLines(lines_);
-        auto filter = vtkSmartPointer<vtkTubeFilter>::New();
-        filter->SetInputData(graph);
-        filter->SetNumberOfSides(side);
-        filter->SetRadius(radius);
-        filter->Update();
-        return filter->GetOutput();
+        return STLRender::append(data);
     }
 
     vtkSmartPointer<vtkImplicitFunction>

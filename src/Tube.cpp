@@ -4,6 +4,7 @@
 
 #include "../include/Tube.h"
 #include <vtkTransform.h>
+#include <vtkCleanPolyData.h>
 
 #include "../util/CircleUtil.h"
 #include "../util/TubeUtil.h"
@@ -14,9 +15,7 @@ Tube *Tube::New() {
     return new Tube;
 }
 
-Tube::Tube() {
-    this->data = vtkSmartPointer<vtkPolyData>::New();
-}
+Tube::Tube() = default;
 
 
 void Tube::setData(vtkSmartPointer<vtkPolyData> data) {
@@ -46,12 +45,18 @@ void Tube::setData(vtkSmartPointer<vtkPolyData> data) {
 
         }
     }
-//    for (int i = 0; i < points.size(); i++) {
-//        auto point = points[i];
-//        cout << point[0] << '\t' << point[1] << '\t' << point[2] << endl;
-//    }
 
-
+//    get radius
+    auto normals = VectorUtil::calculateNormals(this->data);
+    array<double, 3> normal1 = {0};
+    normals->GetTuple(0, normal1.data());
+    auto normal2 = VectorUtil::getDifferentVector(normals, normal1);
+    array<double, 3> tubeNormal = {0};
+    vtkMath::Cross(normal1.data(), normal2.data(), tubeNormal.data());
+    this->normal = tubeNormal;
+    auto edgePoints = TubeUtil::getEdgePoint(this->points, tubeNormal);
+    auto center = CircleUtil::getCenter(edgePoints[0], edgePoints[1], edgePoints[2], tubeNormal);
+    this->radius = LineUtil::getLength(center, edgePoints[0]);
 }
 
 vtkSmartPointer<vtkPolyData> Tube::getData() {
@@ -62,12 +67,6 @@ bool Tube::hasPoint(array<double, 3> point) {
     for (int i = 0; i < this->points.size(); i++) {
 
         auto pointIn = this->points[i];
-
-//            for (int k = 0; k < 3; k++) {
-//                cout<<pointIn[i]<<'\t';
-//            }
-//            cout << '\n';
-
         double epsilon = 0.001;
 
         if (abs(pointIn[0] - point[0]) < epsilon &&
@@ -84,42 +83,41 @@ const vector<array<double, 3>> &Tube::getPoints() const {
 }
 
 array<array<double, 3>, 2> Tube::getStructureLine() {
-    //    calculate tubeNormal
+    auto edgePoints = TubeUtil::getEdgePoint(this->points, this->normal);
+    auto center1 = CircleUtil::getCenter(edgePoints[0], edgePoints[1], edgePoints[2], this->normal);
+
+    VectorUtil::reverse(this->normal);
+    edgePoints = TubeUtil::getEdgePoint(this->points, this->normal);
+    auto center2 = CircleUtil::getCenter(edgePoints[0], edgePoints[1], edgePoints[2], this->normal);
+
     array<array<double, 3>, 2> line{};
-    auto normals = VectorUtil::calculateNormals(this->data);
-    array<double, 3> normal1 = {0};
-    normals->GetTuple(0, normal1.data());
-    auto normal2 = VectorUtil::getDifferentVector(normals, normal1);
-
-    array<double, 3> tubeNormal = {0};
-    vtkMath::Cross(normal1.data(), normal2.data(), tubeNormal.data());
-
-    auto edgePoints = TubeUtil::getEdgePoint(this->points, tubeNormal);
-    auto center1 = CircleUtil::getCenter(edgePoints[0], edgePoints[1], edgePoints[2], tubeNormal);
-
-    VectorUtil::reverse(tubeNormal);
-    edgePoints = TubeUtil::getEdgePoint(this->points, tubeNormal);
-    auto center2 = CircleUtil::getCenter(edgePoints[0], edgePoints[1], edgePoints[2], tubeNormal);
-
     line[0] = center1;
     line[1] = center2;
 
     return line;
 }
 
-array<double, 3> &Tube::getStPoint() {
-    return stPoint;
+double Tube::getRadius() {
+    return radius;
 }
 
-void Tube::setStPoint(array<double, 3> &stPoint) {
-    Tube::stPoint = stPoint;
+void Tube::setRadius(double radius) {
+    Tube::radius = radius;
 }
 
-array<double, 3> &Tube::getEndPoint() {
-    return endPoint;
+array<double, 3> &Tube::getNormal() {
+    return normal;
 }
 
-void Tube::setEndPoint(array<double, 3> &endPoint) {
-    Tube::endPoint = endPoint;
+void Tube::setNormal(array<double, 3> &normal) {
+    Tube::normal = normal;
+}
+
+array<array<double, 3>, 2> &Tube::getCenterLine() {
+    return centerLine;
+}
+
+void Tube::setCenterLine(array<array<double, 3>, 2> &centerLine) {
+    Tube::centerLine = centerLine;
 }
 

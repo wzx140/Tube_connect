@@ -22,9 +22,9 @@ using std::array;
 class Graph : public vtkObject {
 private:
     /**
-     * lines in graph
+     * Unlike other tubes, this only saves both ends points and radius
      */
-    vector<array<array<double, 3>, 2>> lines;
+    vector<vtkSmartPointer<Tube>> tubeLines;
 
     /**
      * intersections in graph
@@ -32,22 +32,17 @@ private:
     vector<vtkSmartPointer<Intersection>> intersections;
 
     /**
-     * radius of the tube
-     */
-    double radius;
-
-    /**
      * the length to extend
      */
     double length;
 
     /**
-     * determine the room in intersections like weight
+     * determine the room in intersections
      */
     double coefficient1;
 
     /**
-     * determine the room in intersections like bias
+     * determine the sample in intersection
      */
     double coefficient2;
 
@@ -75,10 +70,6 @@ public:
     void update();
 
     vector<vtkSmartPointer<vtkPolyData>> getOutput();
-
-    vector<array<array<double, 3>, 2>> &getLines();
-
-    void setRadius(double radius);
 
     void setLength(double length);
 

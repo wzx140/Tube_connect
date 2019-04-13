@@ -16,9 +16,8 @@ using std::sort;
 
 Graph::Graph() {
     this->length = 100;
-    this->radius = 3;
-    this->coefficient1 = 2;
-    this->coefficient2 = 2;
+    this->coefficient1 = 1.2;
+    this->coefficient2 = 20;
     this->coefficient3 = 30;
 }
 
@@ -27,47 +26,61 @@ Graph *Graph::New() {
 }
 
 void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
-    vector<array<array<double, 3>, 2>> lines{};
+
+//    unlike this->tubeLines, this only store the original line
+    vector<vtkSmartPointer<Tube>> tubeLines;
 
     for (const auto &tube : tubes) {
-        lines.emplace_back(tube->getStructureLine());
+        auto line = tube->getStructureLine();
+        auto tubeLine = vtkSmartPointer<Tube>::New();
+        tubeLine->setRadius(tube->getRadius());
+        tubeLine->setCenterLine(line);
+        tubeLines.emplace_back(tubeLine);
     }
 
     // combine the same direction line
-    for (int i = 0; i < lines.size(); i++) {
-        for (int j = i + 1; j < lines.size(); j++) {
-            if (LineUtil::isCollinear(lines.at(i), lines.at(j))) {
-                double length1 = LineUtil::getLength(lines.at(i)[0], lines.at(j)[0]);
-                double length2 = LineUtil::getLength(lines.at(i)[0], lines.at(j)[1]);
-                double length3 = LineUtil::getLength(lines.at(i)[1], lines.at(j)[0]);
-                double length4 = LineUtil::getLength(lines.at(i)[1], lines.at(j)[1]);
+    for (int i = 0; i < tubeLines.size(); i++) {
+        for (int j = i + 1; j < tubeLines.size(); j++) {
+            auto line1 = tubeLines.at(i)->getCenterLine();
+            auto line2 = tubeLines.at(j)->getCenterLine();
+            double radius1 = tubeLines.at(i)->getRadius();
+            double radius2 = tubeLines.at(j)->getRadius();
+
+            if (LineUtil::isCollinear(line1, line2) && abs(radius1 - radius2) < 0.01) {
+                double length1 = LineUtil::getLength(line1[0], line2[0]);
+                double length2 = LineUtil::getLength(line1[0], line2[1]);
+                double length3 = LineUtil::getLength(line1[1], line2[0]);
+                double length4 = LineUtil::getLength(line1[1], line2[1]);
 
                 // find minimum
                 double min = length1;
-                array<double, 3> stPoint = lines.at(i)[1];
-                array<double, 3> endPoint = lines.at(j)[1];
+                array<double, 3> stPoint = line1[1];
+                array<double, 3> endPoint = line2[1];
                 if (length2 < min) {
                     min = length2;
-                    stPoint = lines.at(i)[1];
-                    endPoint = lines.at(j)[0];
+                    stPoint = line1[1];
+                    endPoint = line2[0];
                 }
                 if (length3 < min) {
                     min = length3;
-                    stPoint = lines.at(i)[0];
-                    endPoint = lines.at(j)[1];
+                    stPoint = line1[0];
+                    endPoint = line2[1];
                 }
                 if (length4 < min) {
                     min = length4;
-                    stPoint = lines.at(i)[0];
-                    endPoint = lines.at(j)[0];
+                    stPoint = line1[0];
+                    endPoint = line2[0];
                 }
 
                 if (min <= this->length) {
-                    lines.erase(lines.begin() + i);
-                    lines.erase(lines.begin() + j - 1);
+                    tubeLines.erase(tubeLines.begin() + i);
+                    tubeLines.erase(tubeLines.begin() + j - 1);
 
+                    auto tube = vtkSmartPointer<Tube>::New();
                     array<array<double, 3>, 2> line{stPoint, endPoint};
-                    lines.emplace_back(line);
+                    tube->setCenterLine(line);
+                    tube->setRadius(radius1);
+                    tubeLines.emplace_back(tube);
                     i--;
                     break;
                 }
@@ -76,17 +89,25 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
     }
 
     // extend the lines
-    for (int i = 0; i < lines.size(); i++) {
-        LineUtil::extend(lines.at(i)[0], lines.at(i)[1], this->length);
-//        this->lines.emplace_back(lines.at(i));
+    for (int i = 0; i < tubeLines.size(); i++) {
+        auto line = LineUtil::extend(tubeLines.at(i)->getCenterLine(), this->length);
+        tubeLines.at(i)->setCenterLine(line);
     }
+
+//    for (auto &item : tubeLines) {
+//        auto tube = vtkSmartPointer<Tube>::New();
+//        tube->setRadius(item->getRadius());
+//        tube->setCenterLine(item->getCenterLine());
+//        this->tubeLines.emplace_back(tube);
+//    }
 
     // get cross points
     array<double, 3> point{};
-    for (int i = 0; i < lines.size(); i++) {
-        for (int j = i + 1; j < lines.size(); j++) {
-
-            if (LineUtil::intersection3D(lines[i][0], lines[i][1], lines[j][0], lines[j][1], point)) {
+    for (int i = 0; i < tubeLines.size(); i++) {
+        for (int j = i + 1; j < tubeLines.size(); j++) {
+            auto line1 = tubeLines.at(i)->getCenterLine();
+            auto line2 = tubeLines.at(j)->getCenterLine();
+            if (LineUtil::intersection3D(line1[0], line1[1], line2[0], line2[1], point)) {
 
                 int flag = 0;
                 for (int k = 0; k < this->intersections.size(); k++) {
@@ -121,25 +142,34 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
 
         for (int j = 0; j < info.size(); j++) {
 
+            auto tube1 = tubeLines.at(info.at(j).first);
+            auto line1 = tube1->getCenterLine();
             double minAngle = 90.;
-            auto vector1 = VectorUtil::getVector(lines.at(info.at(j).first)[0], lines.at(info.at(j).first)[1]);
+            double radius1 = tube1->getRadius();
+            double radiusMax = radius1;
+            auto vector1 = VectorUtil::getVector(line1[0], line1[1]);
             for (int k = 0; k < info.size(); k++) {
                 if (k == j) { continue; }
-                auto vector2 = VectorUtil::getVector(lines.at(info.at(k).first)[0], lines.at(info.at(k).first)[1]);
+                auto tube2 = tubeLines.at(info.at(k).first);
+                auto line2 = tube2->getCenterLine();
+                auto vector2 = VectorUtil::getVector(line2[0], line2[1]);
                 double angle = 90. - abs(90. - VectorUtil::getAngle(vector1, vector2));
                 if (angle < minAngle) {
                     minAngle = angle;
                 }
+                if (radiusMax < tube2->getRadius()) {
+                    radiusMax = tube2->getRadius();
+                }
             }
 
-            double room = (180. - minAngle) / 90. * this->coefficient1 * this->radius + this->coefficient2;
+            double room = pow((180. - minAngle) / 90., 2) * this->coefficient1 * radiusMax;
 
             auto tube = vtkSmartPointer<Tube>::New();
+            tube->setRadius(radius1);
 
-            auto lineCut = LineUtil::cut(lines.at(info.at(j).first).at(0), lines.at(info.at(j).first).at(1), point,
-                                         room);
-            tube->setStPoint(lineCut.at(1));
-            tube->setEndPoint(lineCut.at(3));
+            auto lineCut = LineUtil::cut(line1.at(0), line1.at(1), point, room);
+            array<array<double, 3>, 2> line{lineCut.at(1), lineCut.at(3)};
+            tube->setCenterLine(line);
 
             info.at(j).second = room;
             intersections.at(i)->addTube(tube);
@@ -147,7 +177,7 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
     }
 
     // cut the lines
-    for (int i = 0; i < lines.size(); i++) {
+    for (int i = 0; i < tubeLines.size(); i++) {
         vector<array<double, 3>> points;
         vector<double> rooms;
         for (int j = 0; j < this->intersections.size(); j++) {
@@ -156,8 +186,16 @@ void Graph::create(vector<vtkSmartPointer<Tube>> tubes) {
                 rooms.push_back(this->intersections.at(j)->getRoom(i));
             }
         }
-        auto linesCut = LineUtil::cut(lines.at(i).at(0), lines.at(i).at(1), points, rooms);
-        this->lines.insert(this->lines.end(), linesCut.begin(), linesCut.end());
+        auto line = tubeLines.at(i)->getCenterLine();
+        auto radius = tubeLines.at(i)->getRadius();
+        auto linesCut = LineUtil::cut(line.at(0), line.at(1), points, rooms);
+        for (auto &item : linesCut) {
+            auto tube = vtkSmartPointer<Tube>::New();
+            tube->setRadius(radius);
+            tube->setCenterLine(item);
+            this->tubeLines.emplace_back(tube);
+        }
+
     }
 
 
@@ -176,26 +214,42 @@ void Graph::update() {
 
         for (int j = 0; j < tubes.size(); j++) {
 //            extend the tube to avoid the gap
-            array<double, 3> stPointExtend{tubes.at(j)->getStPoint()};
-            array<double, 3> endPointExtend{tubes.at(j)->getEndPoint()};
-            LineUtil::extend(stPointExtend, endPointExtend, 6);
+            auto radius = tubes.at(j)->getRadius();
+            auto line = tubes.at(j)->getCenterLine();
+            double length = LineUtil::getLength(line[0], line[1]);
+            auto line2 = LineUtil::extend(line, length / 6);
+            auto extendLine1 = LineUtil::extend(line, length / 5);
+            auto extendLine2 = LineUtil::extend(line, length / 4);
 
 //            located the caps on the tube
-            auto tubeRemove1 = TubeUtil::createTube(tubes.at(j)->getStPoint(), stPointExtend, this->radius + 0.5);
-            auto tubeRemove2 = TubeUtil::createTube(tubes.at(j)->getEndPoint(), endPointExtend, this->radius + 0.5);
+            auto tubeRemove1 = TubeUtil::createTube(line2[0], extendLine2[0], radius + 0.5);
+            auto tubeRemove2 = TubeUtil::createTube(line2[1], extendLine2[1], radius + 0.5);
             tubesRemove.emplace_back(tubeRemove1);
             tubesRemove.emplace_back(tubeRemove2);
 
-            auto tube = TubeUtil::createTube(stPointExtend, endPointExtend, this->radius);
+            auto tube = TubeUtil::createTube(extendLine1[0], extendLine1[1], radius);
             cylinderUnion->AddFunction(tube);
+        }
+
+        double maxRoom = 0;
+        auto info = intersections.at(i)->getInfo();
+        for (auto &item : info) {
+            if (item.second > maxRoom) {
+                maxRoom = item.second;
+            }
         }
 
         auto center = this->intersections.at(i)->getPoint();
         auto sample = vtkSmartPointer<vtkSampleFunction>::New();
         sample->SetImplicitFunction(cylinderUnion);
-        sample->SetModelBounds(center[0] - 20, center[0] + 20, center[1] - 20, center[1] + 20, center[2] - 20,
-                               center[2] + 20);
-        sample->SetSampleDimensions(this->coefficient3, this->coefficient3, this->coefficient3);
+        sample->SetModelBounds(center[0] - maxRoom - 3,
+                               center[0] + maxRoom + 3,
+                               center[1] - maxRoom - 3,
+                               center[1] + maxRoom + 3,
+                               center[2] - maxRoom - 3,
+                               center[2] + maxRoom + 3);
+        int param = int(this->coefficient2 * ((2 * maxRoom + 6) / 10));
+        sample->SetSampleDimensions(param, param, param);
         sample->ComputeNormalsOff();
         auto surface = vtkSmartPointer<vtkContourFilter>::New();
         surface->SetInputConnection(sample->GetOutputPort());
@@ -207,17 +261,8 @@ void Graph::update() {
 
         this->dataList.emplace_back(data);
     }
-    this->dataList.emplace_back(TubeUtil::createTube(this->lines, this->radius, 20));
+    this->dataList.emplace_back(TubeUtil::createTube(this->tubeLines, this->coefficient3));
 
-}
-
-
-vector<array<array<double, 3>, 2>> &Graph::getLines() {
-    return lines;
-}
-
-void Graph::setRadius(double radius) {
-    Graph::radius = radius;
 }
 
 void Graph::setLength(double length) {

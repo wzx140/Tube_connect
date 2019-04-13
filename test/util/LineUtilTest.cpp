@@ -46,16 +46,17 @@ TEST_F(LineUtilTest, intersection3DTest) {
 TEST_F(LineUtilTest, extendTest) {
     array<double, 3> point1 = {-1, -1, -1};
     array<double, 3> point2 = {1, 1, 1};
+    array<array<double, 3>, 2> lineP{point1, point2};
 
-    LineUtil::extend(point1, point2, 100);
+    lineP = LineUtil::extend(lineP, 100);
 
     auto data = vtkSmartPointer<vtkPolyData>::New();
     auto line = vtkSmartPointer<vtkLine>::New();
     auto points = vtkSmartPointer<vtkPoints>::New();
     auto lines = vtkSmartPointer<vtkCellArray>::New();
 
-    points->InsertNextPoint(point1.data());
-    points->InsertNextPoint(point2.data());
+    points->InsertNextPoint(lineP[0].data());
+    points->InsertNextPoint(lineP[1].data());
     line->GetPointIds()->SetId(0, 0);
     line->GetPointIds()->SetId(1, 1);
     lines->InsertNextCell(line);
