@@ -32,12 +32,11 @@ Be sure to add the VTK **bin** and **lib** directory to your system environment 
 ### TEST
 There are some test files in `./res`
 - `test1.stl` : a tube
-- `test2.stl` : three unconnected tubes
-- `test3.stl` : six unconnected tubes
-- `100.stl` : one hundred unconnected tubes
-- `1000.stl` : ten hundreds unconnected tubes
+- `test2.stl` : three unconnected tubes with equal radius
+- `test3.stl` : several unconnected tubes with non-equal radius
+- `100.stl` : one hundred unconnected tubes with non-equal radius
+- `1000.stl` : ten hundreds unconnected tubes with equal radius
 
 ### ATTENTION
 1. The import file must be stl format and contain only tubes that are not connected
-2. The radius of each tube must be equal 
-3. The connection only create in the intersection of the center line of the tubes
+2. The connection only create in the intersection of the center line of the tubes
