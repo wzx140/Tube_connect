@@ -86,17 +86,7 @@
         </row>
         <row>
          <property name="text">
-          <string>coefficient1</string>
-         </property>
-        </row>
-        <row>
-         <property name="text">
-          <string>coefficient2</string>
-         </property>
-        </row>
-        <row>
-         <property name="text">
-          <string>coefficient3</string>
+          <string>coefficient</string>
          </property>
         </row>
         <column>
@@ -121,22 +111,6 @@
          </property>
         </item>
         <item row="2" column="0">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item row="3" column="0">
-         <property name="text">
-          <string/>
-         </property>
-         <property name="flags">
-          <set>ItemIsSelectable|ItemIsEditable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled</set>
-         </property>
-        </item>
-        <item row="4" column="0">
          <property name="text">
           <string/>
          </property>

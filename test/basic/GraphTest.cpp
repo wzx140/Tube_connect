@@ -26,7 +26,7 @@ TEST_F(GraphTest, updateTest) {
     this->stlRender->setPath("../res/test3.stl");
     stlRender->load();
     auto tubes = this->stlRender->getTubes();
-    graph->setCoefficient1(2);
+    graph->setCoefficient(8);
     graph->setLength(250);
     graph->create(tubes);
     graph->update();

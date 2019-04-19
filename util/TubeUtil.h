@@ -16,6 +16,8 @@
 #include <vtkImplicitFunction.h>
 #include <vtkPlane.h>
 #include <vtkClipPolyData.h>
+#include <vtkCylinderSource.h>
+#include <vtkImplicitPolyDataDistance.h>
 
 #include "../include/STLRender.h"
 #include "../include/Tube.h"
@@ -29,15 +31,6 @@ namespace TubeUtil {
 
 
     inline array<array<double, 3>, 3> getEdgePoint(vector<array<double, 3>> &points, array<double, 3> &normal);
-
-    /**
-     *  generate a tube around each input line
-     *  @param lines: include lots of lines
-     *  @param radius
-     *  @param side: side of the tube
-     * @return
-     */
-    inline vtkSmartPointer<vtkPolyData> createTube(vector<vtkSmartPointer<Tube>> tubeLines, int side);
 
     /**
      *  generate the implicit surface of the tube
@@ -60,23 +53,6 @@ namespace TubeUtil {
 }
 
 namespace TubeUtil {
-
-
-    inline vtkSmartPointer<vtkPolyData> createTube(vector<vtkSmartPointer<Tube>> tubeLines, int side) {
-        vector<vtkSmartPointer<vtkPolyData>> data;
-        for (auto &tubeLine : tubeLines) {
-            auto filter = vtkSmartPointer<vtkTubeFilter>::New();
-            auto line = vtkSmartPointer<vtkLineSource>::New();
-            line->SetPoint1(tubeLine->getCenterLine()[0].data());
-            line->SetPoint2(tubeLine->getCenterLine()[1].data());
-            filter->SetInputConnection(line->GetOutputPort());
-            filter->SetNumberOfSides(side);
-            filter->SetRadius(tubeLine->getRadius());
-            filter->Update();
-            data.emplace_back(filter->GetOutput());
-        }
-        return STLRender::append(data);
-    }
 
     vtkSmartPointer<vtkImplicitFunction>
     createTube(array<double, 3> &stPoint, array<double, 3> &endPoint, double radius) {
@@ -103,6 +79,7 @@ namespace TubeUtil {
         theCylinder->AddFunction(plane2);
 
         return theCylinder;
+
     }
 
     array<array<double, 3>, 3> getEdgePoint(vector<array<double, 3>> &points, array<double, 3> &normal) {

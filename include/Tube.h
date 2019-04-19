@@ -45,6 +45,19 @@ private:
      */
     array<double, 3> normal;
 
+    /**
+     * the bounds of the tube
+     * min and max of xyz
+     */
+    array<double, 6> bounds;
+
+    /**
+     * 0 -> mode with poly data
+     * 1 -> mode with center line
+     * this affect the update function
+     */
+    int mode;
+
 public:
     Tube();
 
@@ -73,13 +86,21 @@ public:
 
     void setRadius(double radius);
 
-    array<double, 3> &getNormal();
-
-    void setNormal(array<double, 3> &normal);
-
     array<array<double, 3>, 2> &getCenterLine();
 
     void setCenterLine(array<array<double, 3>, 2> &centerLine);
+
+    int getMode();
+
+    void setMode(int mode);
+
+    array<double, 6> &getBounds();
+
+    /**
+     * see mode
+     */
+    void update();
+
 };
 
 
