@@ -66,8 +66,8 @@ public:
         QTableWidgetItem *__qtablewidgetitem = new QTableWidgetItem();
         __qtablewidgetitem->setText(QString::fromUtf8("Value"));
         tableWidget->setHorizontalHeaderItem(0, __qtablewidgetitem);
-        if (tableWidget->rowCount() < 5)
-            tableWidget->setRowCount(5);
+        if (tableWidget->rowCount() < 3)
+            tableWidget->setRowCount(3);
         QTableWidgetItem *__qtablewidgetitem1 = new QTableWidgetItem();
         tableWidget->setVerticalHeaderItem(0, __qtablewidgetitem1);
         QTableWidgetItem *__qtablewidgetitem2 = new QTableWidgetItem();
@@ -75,28 +75,14 @@ public:
         QTableWidgetItem *__qtablewidgetitem3 = new QTableWidgetItem();
         tableWidget->setVerticalHeaderItem(2, __qtablewidgetitem3);
         QTableWidgetItem *__qtablewidgetitem4 = new QTableWidgetItem();
-        tableWidget->setVerticalHeaderItem(3, __qtablewidgetitem4);
+        __qtablewidgetitem4->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+        tableWidget->setItem(0, 0, __qtablewidgetitem4);
         QTableWidgetItem *__qtablewidgetitem5 = new QTableWidgetItem();
-        tableWidget->setVerticalHeaderItem(4, __qtablewidgetitem5);
+        __qtablewidgetitem5->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+        tableWidget->setItem(1, 0, __qtablewidgetitem5);
         QTableWidgetItem *__qtablewidgetitem6 = new QTableWidgetItem();
-        __qtablewidgetitem6->setFlags(
-                Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable |
-                Qt::ItemIsEnabled);
-        tableWidget->setItem(0, 0, __qtablewidgetitem6);
-        QTableWidgetItem *__qtablewidgetitem7 = new QTableWidgetItem();
-        __qtablewidgetitem7->setFlags(
-                Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsUserCheckable |
-                Qt::ItemIsEnabled);
-        tableWidget->setItem(1, 0, __qtablewidgetitem7);
-        QTableWidgetItem *__qtablewidgetitem8 = new QTableWidgetItem();
-        __qtablewidgetitem8->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        tableWidget->setItem(2, 0, __qtablewidgetitem8);
-        QTableWidgetItem *__qtablewidgetitem9 = new QTableWidgetItem();
-        __qtablewidgetitem9->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        tableWidget->setItem(3, 0, __qtablewidgetitem9);
-        QTableWidgetItem *__qtablewidgetitem10 = new QTableWidgetItem();
-        __qtablewidgetitem10->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
-        tableWidget->setItem(4, 0, __qtablewidgetitem10);
+        __qtablewidgetitem6->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEditable|Qt::ItemIsDragEnabled|Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
+        tableWidget->setItem(2, 0, __qtablewidgetitem6);
         tableWidget->setObjectName(QString::fromUtf8("tableWidget"));
         tableWidget->setEnabled(false);
         QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Preferred);
@@ -170,15 +156,10 @@ public:
         QTableWidgetItem *___qtablewidgetitem1 = tableWidget->verticalHeaderItem(1);
         ___qtablewidgetitem1->setText(QApplication::translate("MainWindow", "length", nullptr));
 #ifndef QT_NO_TOOLTIP
-        ___qtablewidgetitem1->setToolTip(
-                QApplication::translate("MainWindow", "the length of each tube after connection", nullptr));
+        ___qtablewidgetitem1->setToolTip(QApplication::translate("MainWindow", "the length of each tube after connection", nullptr));
 #endif // QT_NO_TOOLTIP
         QTableWidgetItem *___qtablewidgetitem2 = tableWidget->verticalHeaderItem(2);
-        ___qtablewidgetitem2->setText(QApplication::translate("MainWindow", "coefficient1", nullptr));
-        QTableWidgetItem *___qtablewidgetitem3 = tableWidget->verticalHeaderItem(3);
-        ___qtablewidgetitem3->setText(QApplication::translate("MainWindow", "coefficient2", nullptr));
-        QTableWidgetItem *___qtablewidgetitem4 = tableWidget->verticalHeaderItem(4);
-        ___qtablewidgetitem4->setText(QApplication::translate("MainWindow", "coefficient3", nullptr));
+        ___qtablewidgetitem2->setText(QApplication::translate("MainWindow", "coefficient", nullptr));
 
         const bool __sortingEnabled = tableWidget->isSortingEnabled();
         tableWidget->setSortingEnabled(false);

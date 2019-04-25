@@ -93,6 +93,8 @@ vector<vtkSmartPointer<Tube>> STLRender::getTubes() {
         filter2->Update();
 
         tube->setData(filter2->GetOutput());
+        tube->setMode(0);
+        tube->update();
         tubes.emplace_back(tube);
     }
 
