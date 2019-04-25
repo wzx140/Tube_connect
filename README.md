@@ -39,4 +39,4 @@ There are some test files in `./res`
 
 ### ATTENTION
 1. The import file must be stl format and contain only tubes that are not connected
-2. The connection only create in the intersection of the center line of the tubes
+2. This project is no longer maintained
