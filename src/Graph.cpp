@@ -9,6 +9,7 @@
 #include "../include/STLRender.h"
 #include <vtkContourFilter.h>
 #include <vtkSampleFunction.h>
+#include <vtkAppendPolyData.h>
 
 using std::pair;
 using std::sort;
