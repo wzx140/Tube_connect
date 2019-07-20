@@ -28,6 +28,8 @@ Be sure to add the VTK **bin** and **lib** directory to your system environment 
 
 ### RUN
 `./tube_connect`
+![](res/img1.png)
+![](res/img2.png)
 
 ### TEST
 There are some test files in `./res`
